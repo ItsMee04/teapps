@@ -11,14 +11,9 @@ import '../assets/plugins/fontawesome/css/all.min.css'
 import '../assets/css/style.css'
 
 // =========================
-// jQuery Global Setup
-// =========================
-import jQuery from 'jquery'
-window.$ = window.jQuery = jQuery
-
-// =========================
 // JS Plugins (urutan penting!)
 // =========================
+await import('../assets/js/jquery-3.7.1.min.js') 
 import '../assets/js/bootstrap.bundle.min.js'
 await import('../assets/js/jquery.slimscroll.min.js')
 await import('../assets/js/jquery.dataTables.min.js')

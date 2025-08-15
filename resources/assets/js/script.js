@@ -5,11 +5,6 @@ Template Name: POS - Bootstrap Admin Template
 
 
 $(document).ready(function () {
-
-	// Variables declarations
-	var $wrapper = $('.main-wrapper');
-	var $pageWrapper = $('.page-wrapper');
-
 	// Page Content Height Resize
 	$(window).resize(function () {
 		if ($('.page-wrapper').length > 0) {
@@ -21,29 +16,7 @@ $(document).ready(function () {
 
 	if (localStorage.theme) document.documentElement.setAttribute("data-layout-mode", localStorage.theme);
 
-	//theme Settings 
-
-	// Mobile menu sidebar overlay
-	$('body').append('<div class="sidebar-overlay"></div>');
-
-
-	$(document).on('click', '#mobile_btn', function () {
-		$wrapper.toggleClass('slide-nav');
-		$('.sidebar-overlay').toggleClass('opened');
-		$('html').addClass('menu-opened');
-		$('#task_window').removeClass('opened');
-		return false;
-	});
-
-	$(".sidebar-overlay").on("click", function () {
-		$('html').removeClass('menu-opened');
-		$(this).removeClass('opened');
-		$wrapper.removeClass('slide-nav');
-		$('.sidebar-overlay').removeClass('opened');
-		$('#task_window').removeClass('opened');
-	});
-
-	// Logo Hide Btn
+	//theme Settings
 
 	$(document).on("click", ".hideset", function () {
 		$(this).parent().parent().parent().hide();
@@ -97,6 +70,7 @@ $(document).ready(function () {
 	$('.notes-tog').on('click', function () {
 		$('.notes-page-wrapper').toggleClass('notes-tag-left');
 	});
+
 
 	//Notes Slider
 	if ($('.notes-slider').length > 0) {
@@ -161,19 +135,6 @@ $(document).ready(function () {
 	$("#imgInp").change(function () {
 		readURL(this);
 	});
-
-	if ($('.datatable').length > 0) {
-		$('.datatable').DataTable({
-			"bFilter": false
-		});
-	}
-	// Loader
-	setTimeout(function () {
-		$('#global-loader');
-		setTimeout(function () {
-			$("#global-loader").fadeOut("slow");
-		}, 100);
-	}, 500);
 
 	// Datetimepicker
 	if ($('.datetimepicker').length > 0) {
@@ -243,6 +204,9 @@ $(document).ready(function () {
 		});
 	}
 
+	// if ($('.select2').length > 0) {
+	// 	$(".select2").select2();
+	// }
 	// Counter 
 	if ($('.counter').length > 0) {
 		$('.counter').counterUp({
@@ -293,6 +257,7 @@ $(document).ready(function () {
 	}
 
 	// Summernote
+
 	if ($('#summernote').length > 0) {
 		$('#summernote').summernote({
 			height: 300,                 // set editor height
@@ -303,6 +268,7 @@ $(document).ready(function () {
 	}
 
 	// Summernote
+
 	if ($('#summernote2').length > 0) {
 		$('#summernote2').summernote({
 			height: 300,                 // set editor height
@@ -345,7 +311,9 @@ $(document).ready(function () {
 		});
 	}, 1000);
 
+
 	// Date Range Picker
+
 	if ($('.bookingrange').length > 0) {
 		var start = moment().subtract(6, 'days');
 		var end = moment();
@@ -472,6 +440,8 @@ $(document).ready(function () {
 
 	});
 
+
+
 	if ($('.select-color-add').length > 0) {
 		const colorSelect = document.getElementById('colorSelect');
 		const inputBox = document.getElementById('inputBox');
@@ -489,6 +459,7 @@ $(document).ready(function () {
 			inputBox.value = selectedValue;
 		});
 	}
+
 
 	if ($('.win-maximize').length > 0) {
 		$('.win-maximize').on('click', function (e) {
@@ -590,14 +561,6 @@ $(document).ready(function () {
 		}
 
 	});
-
-	// Tooltip
-	if ($('[data-bs-toggle="tooltip"]').length > 0) {
-		var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-		var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-			return new bootstrap.Tooltip(tooltipTriggerEl)
-		})
-	}
 
 	var right_side_views = '<div class="right-side-views d-none">' +
 		'<ul class="sticky-sidebar siderbar-view">' +
@@ -1359,31 +1322,6 @@ $(document).ready(function () {
 
 
 });
-function toggleFullscreen(elem) {
-	elem = elem || document.documentElement;
-	if (!document.fullscreenElement && !document.mozFullScreenElement &&
-		!document.webkitFullscreenElement && !document.msFullscreenElement) {
-		if (elem.requestFullscreen) {
-			elem.requestFullscreen();
-		} else if (elem.msRequestFullscreen) {
-			elem.msRequestFullscreen();
-		} else if (elem.mozRequestFullScreen) {
-			elem.mozRequestFullScreen();
-		} else if (elem.webkitRequestFullscreen) {
-			elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-		}
-	} else {
-		if (document.exitFullscreen) {
-			document.exitFullscreen();
-		} else if (document.msExitFullscreen) {
-			document.msExitFullscreen();
-		} else if (document.mozCancelFullScreen) {
-			document.mozCancelFullScreen();
-		} else if (document.webkitExitFullscreen) {
-			document.webkitExitFullscreen();
-		}
-	}
-}
 
 //Increment Decrement Numberes
 $(".quantity-btn").on("click", function () {
@@ -1554,22 +1492,8 @@ $(document).on("click", ".remove-color", function () {
 	$(this).parent().parent().parent().hide();
 });
 
-// Collapse Header
-if ($('#btnFullscreen').length > 0) {
-	document.getElementById('btnFullscreen').addEventListener('click', function () {
-		toggleFullscreen();
-	});
-}
-
 
 $(document).ready(function () {
-
-	if ($('#collapse-header').length > 0) {
-		document.getElementById('collapse-header').onclick = function () {
-			this.classList.toggle('active');
-			document.body.classList.toggle('header-collapse');
-		}
-	}
 	// if($('#file-delete').length > 0) {
 	// 		document.getElementById('file-delete').onclick = function() {
 	// 		document.getElementsByClassName('deleted-table').classList.add("d-none");
@@ -1793,7 +1717,6 @@ $(document).ready(function () {
 		});
 	});
 	/* card with close button */
+
+
 });
-
-
-
