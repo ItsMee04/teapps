@@ -29,3 +29,7 @@ Route::get('/jabatan', function () {
 Route::get('/role', function () {
     return Inertia::render('Role');
 })->name('role');
+
+Route::get('/pegawai', function () {
+    return Inertia::render('Pegawai');
+})->name('pegawai');
