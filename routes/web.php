@@ -25,3 +25,7 @@ Route::get('/dashboard', function () {
 Route::get('/jabatan', function () {
     return Inertia::render('Jabatan');
 })->name('jabatan');
+
+Route::get('/role', function () {
+    return Inertia::render('Role');
+})->name('role');
