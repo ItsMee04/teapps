@@ -72,6 +72,7 @@
 </template>
 
 <script>
+import AuthService from '../services/auth';
 export default {
     name: "Login",
     layout: null, // Tidak pakai layout
@@ -101,27 +102,39 @@ export default {
         $(this.$el).off('click', '.toggle-password');
     },
     methods: {
-        submitLogin() {
+        clearError(field) {
+            // Menghapus kesalahan untuk field tertentu
+            if (this.errors[field]) {
+                this.$delete(this.errors, field);
+            }
+        },
+        async submitLogin() {
             // Validasi
             if (!this.form.email) {
-                this.$toast("Email wajib diisi", "error");
-                return;
+                this.$toast("Email wajib diisi", "error")
+                return
             }
             if (!this.form.password) {
-                this.$toast("Password wajib diisi", "error");
-                return;
+                this.$toast("Password wajib diisi", "error")
+                return
             }
 
-            // Kirim ke backend (contoh pakai Inertia)
-            // this.$inertia.post('/login', this.form, {
-            //     onError: (errors) => {
-            //         if (errors.email) this.$toast(errors.email, "error")
-            //         if (errors.password) this.$toast(errors.password, "error")
-            //     }
-            // })
+            try {
+                const response = await AuthService.login(this.form)
 
-            // Demo saja:
-            this.$toast("Login berhasil!", "success");
+                this.$toast("Login berhasil!", "success")
+                this.$inertia.visit('/dashboard')
+            } catch (error) {
+                if (error.response) {
+                    // Handle error dari API
+                    if (error.response.status === 422) {
+                        this.errors = error.response.data.errors
+                    }
+                    this.$toast(error.response.data.message || 'Login gagal', "error")
+                } else {
+                    this.$toast("Terjadi kesalahan pada server", "error")
+                }
+            }
         }
     }
 };

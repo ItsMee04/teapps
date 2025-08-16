@@ -1,73 +1,95 @@
 // =========================
 // CSS
 // =========================
-import '../assets/css/bootstrap.min.css'
-import '../assets/css/bootstrap-datetimepicker.min.css'
-import '../assets/css/dataTables.bootstrap5.min.css'
-import '../assets/css/animate.css'
-import '../assets/plugins/select2/css/select2.min.css'
-import '../assets/plugins/fontawesome/css/fontawesome.min.css'
-import '../assets/plugins/fontawesome/css/all.min.css'
-import '../assets/css/style.css'
+import "../assets/css/bootstrap.min.css";
+import "../assets/css/bootstrap-datetimepicker.min.css";
+import "../assets/css/dataTables.bootstrap5.min.css";
+import "../assets/css/animate.css";
+import "../assets/plugins/select2/css/select2.min.css";
+import "../assets/plugins/fontawesome/css/fontawesome.min.css";
+import "../assets/plugins/fontawesome/css/all.min.css";
+import "../assets/css/style.css";
 
 // =========================
 // JS Plugins (urutan penting!)
 // =========================
-await import('../assets/js/jquery-3.7.1.min.js') 
-import '../assets/js/bootstrap.bundle.min.js'
-await import('../assets/js/jquery.slimscroll.min.js')
-await import('../assets/js/jquery.dataTables.min.js')
-await import('../assets/js/dataTables.bootstrap5.min.js')
-import '../assets/js/feather.min.js'
-await import('../assets/plugins/select2/js/select2.min.js')
-import '../assets/plugins/sweetalert/sweetalert2.all.min.js'
-await import('../assets/plugins/sweetalert/sweetalerts.min.js')
-await import('../assets/js/script.js')
+await import("../assets/js/jquery-3.7.1.min.js");
+import "../assets/js/bootstrap.bundle.min.js";
+await import("../assets/js/jquery.slimscroll.min.js");
+await import("../assets/js/jquery.dataTables.min.js");
+await import("../assets/js/dataTables.bootstrap5.min.js");
+import "../assets/js/feather.min.js";
+await import("../assets/plugins/select2/js/select2.min.js");
+import "../assets/plugins/sweetalert/sweetalert2.all.min.js";
+await import("../assets/plugins/sweetalert/sweetalerts.min.js");
+await import("../assets/js/script.js");
 
 // =========================
 // Vue & Inertia
 // =========================
-import { createApp, h } from 'vue'
-import { createInertiaApp } from '@inertiajs/vue3'
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
-import toastfy from './utilities/toastfy.js'
-import { initTooltips } from './utilities/tooltip.js';
-import { Inertia } from '@inertiajs/inertia'
+import { createApp, h } from "vue";
+import { createInertiaApp } from "@inertiajs/vue3";
+import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
+import toastfy from "./utilities/toastfy.js";
+import { initTooltips } from "./utilities/tooltip.js";
+import { Inertia } from "@inertiajs/inertia";
+import axios from "axios";
+
+// Import konfigurasi Axios dan AuthService
+import AuthService from "./services/auth";
 
 // Layout Global
-import MainLayout from '@/Layouts/MainLayout.vue'
+import MainLayout from "@/Layouts/MainLayout.vue";
+
+// Inisialisasi AuthService
+AuthService.initialize();
 
 createInertiaApp({
-    resolve: async name => {
+    resolve: async (name) => {
         const page = await resolvePageComponent(
             `./Pages/${name}.vue`,
-            import.meta.glob('./Pages/**/*.vue')
-        )
+            import.meta.glob("./Pages/**/*.vue")
+        );
 
         // Set default layout jika belum ada
         if (page.default.layout === undefined) {
-            page.default.layout = MainLayout
+            page.default.layout = MainLayout;
         }
 
-        return page
+        return page;
     },
     setup({ el, App, props, plugin }) {
-        const vueApp = createApp({ render: () => h(App, props) })
-        vueApp.use(plugin)
-        vueApp.use(toastfy)
-        vueApp.mount(el)
+        const vueApp = createApp({ render: () => h(App, props) });
+        vueApp.use(plugin);
+        vueApp.use(toastfy);
+        vueApp.mount(el);
 
         // Jalankan Feather icons & Tooltip setelah mount
-        feather.replace()
-        initTooltips()
+        feather.replace();
+        initTooltips();
     },
-    progress: { color: '#4B5563' },
-})
+    progress: { color: "#4B5563" },
+});
 
 // =========================
 // Aktifkan Tooltip & Feather setelah navigasi
 // =========================
-Inertia.on('navigate', () => {
-    feather.replace()
-    initTooltips()
-})
+Inertia.on("navigate", () => {
+    feather.replace();
+    initTooltips();
+});
+
+// =========================
+// Set Axios ke global properties
+// =========================
+// Interceptor untuk handle error 401 (Unauthorized)
+axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response.status === 401) {
+            AuthService.logout();
+            window.location.href = "/login";
+        }
+        return Promise.reject(error);
+    }
+);
