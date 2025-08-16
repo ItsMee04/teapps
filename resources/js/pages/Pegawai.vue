@@ -37,7 +37,7 @@
                         </div>
 
                         <div class="table-responsive product-list">
-                            <table class="table datanew text-nowrap table-hover" id="RoleTable">
+                            <table class="table datanew text-nowrap table-hover" id="PegawaiTable">
                                 <thead>
                                     <tr>
                                         <th>No.</th>
@@ -55,12 +55,12 @@
                                         <td>{{ pegawai.nama }}</td>
                                         <td>{{ pegawai.jabatan.jabatan }}</td>
                                         <td>
-                                            <span class="badge" :class="role.status
+                                            <span class="badge" :class="pegawai.status
                                                 ? 'bg-success'
                                                 : 'bg-danger'
                                                 ">
                                                 {{
-                                                    role.status
+                                                    pegawai.status
                                                         ? "Aktif"
                                                         : "Non-Aktif"
                                                 }}
@@ -108,9 +108,45 @@
                             </div>
                             <div class="modal-body custom-modal-body">
                                 <form @submit.prevent="submitPegawai">
+                                    <div class="row">
+                                        <div class="mb-3 col-md-6">
+                                            <label class="form-label">NIP<span class="text-danger ms-1">*</span></label>
+                                            <input type="text" v-model="form.nip" class="form-control">
+                                        </div>
+                                        <div class="mb-3 col-md-6">
+                                            <label class="form-label">NAMA<span class="text-danger ms-1">*</span></label>
+                                            <input type="text" name="nama" class="form-control">
+                                        </div>
+                                    </div>
                                     <div class="mb-3">
-                                        <label class="form-label">ROLE</label>
-                                        <input type="text" v-model="form.pegawai" class="form-control" />
+                                        <label class="form-label">ALAMAT<span class="text-danger ms-1">*</span></label>
+                                        <textarea name="alamat" class="form-control" cols="30" rows="4"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">KONTAK<span class="text-danger ms-1">*</span></label>
+                                        <input type="text" name="kontak" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">JABATAN<span class="text-danger ms-1">*</span></label>
+                                        <select class="select" id="jabatan" name="jabatan">
+                                        </select>
+                                    </div>
+                                    <div class="add-choosen">
+                                        <div class="mb-3">
+                                            <label class="form-label">AVATAR</label>
+                                            <div class="image-upload ">
+                                                <input type="file" name="imagePegawai" id="imagePegawai">
+                                                <div class="image-uploads">
+                                                    <i data-feather="upload" class="plus-down-add me-0"></i>
+                                                    <h4>UPLOAD AVATAR</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="phone-img"
+                                            style="width: 150px; height: 150px; overflow: hidden; border-radius: 8px;">
+                                            <div id="imagePegawaiPreview" alt="previewImage"
+                                                style="width: 150px; height: 150px; display: block; overflow: hidden;"></div>
+                                        </div>
                                     </div>
                                     <!-- <div class="mb-3">
                                         <label class="form-label">Category Slug</label>
@@ -130,7 +166,7 @@
                                             CANCEL
                                         </button>
                                         <button type="submit" class="btn btn-submit btn-secondary">
-                                            SIMPAN ROLE
+                                            SIMPAN PEGAWAI
                                         </button>
                                     </div>
                                 </form>
@@ -143,10 +179,136 @@
     </div>
 </template>
 <script>
+import {
+    getCurrentInstance,
+    ref,
+    reactive,
+    onMounted,
+    onBeforeUnmount,
+    nextTick,
+    onUpdated,
+} from "vue";
+import { initDataTable } from "@/utilities/datatable.js";
+import { initTooltips } from "../utilities/tooltip";
+import { initSelect2, destrySelect2 } from "../utilities/select.js";
+import { uploadImage } from "../utilities/uploadImage.js";
+import axios from "../utilities/axios.js";
+
 export default {
+    name: "Pegawai",
+    props: {
+        pegawais: {
+            type: Array,
+            default: () => [],
+        },
+    },
+    setup() {
+        const { appContext } = getCurrentInstance(); // ambil global properties
+        const toast = appContext.config.globalProperties.$toast;
+        const uploadController = ref(null);
+        const tableSelector = "#PegawaiTable";
+        const tambahModal = ref(null);
+        const form = reactive({
+            pegawai: "",
+        });
 
-}
+        // Fetch data dari API
+        const fetchPegawais = async () => {
+            try {
+                const response = await axios.get('/api/pegawai/getPegawai'); // ganti URL sesuai API
+                pegawais.value = response.data;
+            } catch (error) {
+                toast("Gagal mengambil data", "error");
+                console.error(error);
+            }
+        };
+
+        // Refresh tabel: ambil data baru + re-init DataTable
+        const refreshTable = async () => {
+            if (await fetchPegawais()) {
+                // Hapus DataTable lama
+                const tableEl = document.querySelector(tableSelector);
+                if (tableEl && $.fn.DataTable.isDataTable(tableEl)) {
+                    $(tableEl).DataTable().destroy();
+                }
+
+                // Re-init DataTable dan tooltips
+                nextTick(() => {
+                    initDataTable(tableSelector);
+                    feather.replace();
+                    initTooltips();
+                });
+
+                toast("Berhasil merefresh data", "success");
+            }
+        };
+
+        const openModalAdd = () => {
+            // pakai Bootstrap global
+            const modalEl = tambahModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
+                    backdrop: 'static', // Modal tidak akan tertutup saat klik overlay
+                    keyboard: false     // Modal tidak bisa ditutup dengan ESC
+                });
+                modal.show();
+            }
+            uploadController.value = uploadImage(
+                "imagePegawai",
+                "imagePegawaiPreview"
+            );
+        };
+
+        const closePegawai = () => {
+            const modalEl = tambahModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+            }
+            form.pegawai = ""; // reset form
+            if (uploadController.value) {
+                uploadController.value.clearPreview();
+            }
+        };
+
+        const submitPegawai = () => {
+            if (!form.pegawai.trim()) {
+                toast("Pegawai wajib diisi!", "error");
+                return;
+            }
+
+            console.log("Submit Pegawai:", form.pegawai);
+            closePegawai();
+            toast("Pegawai berhasil disimpan!", "success");
+        };
+
+        onMounted(async () => {
+            await fetchPegawais();
+            nextTick(() => {
+                feather.replace();
+                initSelect2("#jabatan", {
+                    placeholder: "Pilih Jabatan",
+                    allowClear: true,
+                });
+                uploadImage("imagePegawai", "imagePegawaiPreview");
+                initDataTable(tableSelector); // selector tabel
+                initTooltips();
+            });
+        });
+        // Re-init DataTable & Feather jika halaman diperbarui (SPA)
+        onUpdated(() => {
+            feather.replace();
+            initDataTable(tableSelector);
+            initTooltips(); // aktifkan tooltip
+        });
+
+        onBeforeUnmount(() => {
+            feather.replace();
+            destrySelect2("#jabatan"); // hancurkan select2
+            initTooltips(); // aktifkan tooltip
+        });
+
+        return { tambahModal, refreshTable, form, openModalAdd, closePegawai, submitPegawai };
+    },
+};
 </script>
-<style lang="">
-
-</style>

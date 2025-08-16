@@ -19,6 +19,7 @@ await import('../assets/js/jquery.slimscroll.min.js')
 await import('../assets/js/jquery.dataTables.min.js')
 await import('../assets/js/dataTables.bootstrap5.min.js')
 import '../assets/js/feather.min.js'
+await import('../assets/plugins/select2/js/select2.min.js')
 import '../assets/plugins/sweetalert/sweetalert2.all.min.js'
 await import('../assets/plugins/sweetalert/sweetalerts.min.js')
 await import('../assets/js/script.js')

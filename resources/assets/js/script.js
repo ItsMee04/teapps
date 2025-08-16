@@ -196,13 +196,13 @@ $(document).ready(function () {
 		setCountdown()
 	}
 
-	// Select 2
-	if ($('.select').length > 0) {
-		$('.select').select2({
-			minimumResultsForSearch: -1,
-			width: '100%'
-		});
-	}
+	// // Select 2
+	// if ($('.select').length > 0) {
+	// 	$('.select').select2({
+	// 		minimumResultsForSearch: -1,
+	// 		width: '100%'
+	// 	});
+	// }
 
 	// if ($('.select2').length > 0) {
 	// 	$(".select2").select2();

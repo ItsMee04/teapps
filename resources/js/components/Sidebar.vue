@@ -7,8 +7,8 @@
                     <li class="submenu-open">
                         <h6 class="submenu-hdr">Main</h6>
                         <ul>
-                            <li>
-                                <Link href="/dashboard" :class="{ 'active': currentPath === '/dashboard' }">
+                            <li :class="{ 'active': currentPath === '/dashboard' }">
+                                <Link href="/dashboard">
                                 <i data-feather="grid"></i>
                                 <span>Dashboard</span>
                                 </Link>

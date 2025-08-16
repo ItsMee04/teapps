@@ -185,29 +185,32 @@ export default {
 
         // Refresh tabel: ambil data baru + re-init DataTable
         const refreshTable = async () => {
-            await fetchRoles(); // ambil data terbaru
-
-            // Hapus DataTable lama
-            const tableEl = document.querySelector(tableSelector);
-            if (tableEl && $.fn.DataTable.isDataTable(tableEl)) {
-                $(tableEl).DataTable().destroy();
-            }
-
-            // Re-init DataTable dan tooltips
-            nextTick(() => {
-                initDataTable(tableSelector);
-                feather.replace();
-                initTooltips();
-            });
-
-            toast("Berhasil merefresh data", "success");
+            if (await fetchRoles()) {
+                // ambil data terbaru
+                // Hapus DataTable lama
+                const tableEl = document.querySelector(tableSelector);
+                if (tableEl && $.fn.DataTable.isDataTable(tableEl)) {
+                    $(tableEl).DataTable().destroy();
+                }
+                // Re-init DataTable dan tooltips
+                nextTick(() => {
+                    initDataTable(tableSelector);
+                    feather.replace();
+                    initTooltips();
+                });
+                // Tampilkan toast hanya jika berhasil mengambil data
+                toast("Berhasil merefresh data", "success");
+            };
         };
 
         const openModalAdd = () => {
             // pakai Bootstrap global
             const modalEl = tambahModal.value;
             if (modalEl) {
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
+                    backdrop: 'static', // Modal tidak akan tertutup saat klik overlay
+                    keyboard: false     // Modal tidak bisa ditutup dengan ESC
+                });
                 modal.show();
             }
         };

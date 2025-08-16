@@ -171,7 +171,6 @@ export default {
             jabatan: "",
         });
 
-
         // Fetch data dari API
         const fetchJabatans = async () => {
             try {
@@ -185,29 +184,31 @@ export default {
 
         // Refresh tabel: ambil data baru + re-init DataTable
         const refreshTable = async () => {
-            await fetchJabatans(); // ambil data terbaru
+            if (await fetchJabatans()) {
+                // Hapus DataTable lama
+                const tableEl = document.querySelector(tableSelector);
+                if (tableEl && $.fn.DataTable.isDataTable(tableEl)) {
+                    $(tableEl).DataTable().destroy();
+                }
 
-            // Hapus DataTable lama
-            const tableEl = document.querySelector(tableSelector);
-            if (tableEl && $.fn.DataTable.isDataTable(tableEl)) {
-                $(tableEl).DataTable().destroy();
+                // Re-init DataTable dan tooltips
+                nextTick(() => {
+                    initDataTable(tableSelector);
+                    feather.replace();
+                    initTooltips();
+                });
+                toast("Berhasil merefresh data", "success");
             }
-
-            // Re-init DataTable dan tooltips
-            nextTick(() => {
-                initDataTable(tableSelector);
-                feather.replace();
-                initTooltips();
-            });
-
-            toast("Berhasil merefresh data", "success");
         };
 
         const openModalAdd = () => {
             // pakai Bootstrap global
             const modalEl = tambahModal.value;
             if (modalEl) {
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
+                    backdrop: 'static', // Modal tidak akan tertutup saat klik overlay
+                    keyboard: false     // Modal tidak bisa ditutup dengan ESC
+                });
                 modal.show();
             }
         };
