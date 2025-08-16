@@ -1,7 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\UserManagement\UserController;
+use App\Http\Controllers\UserManagement\JabatanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,11 +17,14 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/', function () {
-    return Inertia::render('Login');
-})->name('login');
+Route::middleware('guest')->group(function () {
+    Route::get('/', function () {
+        return Inertia::render('Login');
+    })->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+});
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
@@ -26,6 +32,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/jabatan', function () {
         return Inertia::render('Jabatan');
     })->name('jabatan');
+    Route::get('jabatan/getJabatan', [JabatanController::class, 'getJabatan']);
+    Route::post('jabatan/storeJabatan', [JabatanController::class, 'storeJabatan']);
+    Route::get('jabatan/getJabatanByID/{id}', [JabatanController::class, 'getJabatanByID']);
+    Route::post('jabatan/updateJabatan/{id}', [JabatanController::class, 'updateJabatan']);
+    Route::delete('jabatan/deleteJabatan/{id}', [JabatanController::class, 'deleteJabatan']);
 
     Route::get('/role', function () {
         return Inertia::render('Role');
@@ -38,4 +49,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users', function () {
         return Inertia::render('Users');
     })->name('users');
+    Route::get('users/getUsers', [UserController::class, 'getUsers']);
+
+    Route::get('/test', function () {
+        return auth()->user();
+    });
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

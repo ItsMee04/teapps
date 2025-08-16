@@ -33,16 +33,9 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import toastfy from "./utilities/toastfy.js";
 import { initTooltips } from "./utilities/tooltip.js";
 import { Inertia } from "@inertiajs/inertia";
-import axios from "axios";
-
-// Import konfigurasi Axios dan AuthService
-import AuthService from "./services/auth";
 
 // Layout Global
 import MainLayout from "@/Layouts/MainLayout.vue";
-
-// Inisialisasi AuthService
-AuthService.initialize();
 
 createInertiaApp({
     resolve: async (name) => {
@@ -78,18 +71,3 @@ Inertia.on("navigate", () => {
     feather.replace();
     initTooltips();
 });
-
-// =========================
-// Set Axios ke global properties
-// =========================
-// Interceptor untuk handle error 401 (Unauthorized)
-axios.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response.status === 401) {
-            AuthService.logout();
-            window.location.href = "/login";
-        }
-        return Promise.reject(error);
-    }
-);

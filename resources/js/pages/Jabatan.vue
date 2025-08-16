@@ -47,19 +47,12 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(jabatan, index) in jabatans" :key="jabatan.id">
+                                    <tr v-for="(jabatan, index) in jabatansState" :key="jabatan.id">
                                         <td>{{ index + 1 }}</td>
                                         <td>{{ jabatan.jabatan }}</td>
                                         <td>
-                                            <span class="badge" :class="jabatan.status
-                                                ? 'bg-success'
-                                                : 'bg-danger'
-                                                ">
-                                                {{
-                                                    jabatan.status
-                                                        ? "Aktif"
-                                                        : "Non-Aktif"
-                                                }}
+                                            <span class="badge" :class="jabatan.status ? 'bg-success' : 'bg-danger'">
+                                                {{ jabatan.status ? "Aktif" : "Non-Aktif" }}
                                             </span>
                                         </td>
                                         <td class="action-table-data">
@@ -161,37 +154,40 @@ export default {
             default: () => [],
         },
     },
-    setup() {
-        const { appContext } = getCurrentInstance(); // ambil global properties
+    setup(props) {
+        const { appContext } = getCurrentInstance();
         const toast = appContext.config.globalProperties.$toast;
 
         const tableSelector = "#JabatanTable";
         const tambahModal = ref(null);
+
+        // ✅ state lokal buat bisa diubah
+        const jabatansState = ref([...props.jabatans]);
+
         const form = reactive({
             jabatan: "",
         });
 
-        // Fetch data dari API
+        // Fetch data
         const fetchJabatans = async () => {
             try {
-                const response = await axios.get('/api/jabatan/getJabatan'); // ganti URL sesuai API
-                jabatans.value = response.data;
+                const response = await axios.get('/jabatan/getJabatan');
+                jabatansState.value = response.data.Data;
+                return true;
             } catch (error) {
                 toast("Gagal mengambil data", "error");
                 console.error(error);
+                return false;
             }
         };
 
-        // Refresh tabel: ambil data baru + re-init DataTable
+        // Refresh tabel
         const refreshTable = async () => {
             if (await fetchJabatans()) {
-                // Hapus DataTable lama
                 const tableEl = document.querySelector(tableSelector);
                 if (tableEl && $.fn.DataTable.isDataTable(tableEl)) {
                     $(tableEl).DataTable().destroy();
                 }
-
-                // Re-init DataTable dan tooltips
                 nextTick(() => {
                     initDataTable(tableSelector);
                     feather.replace();
@@ -202,12 +198,11 @@ export default {
         };
 
         const openModalAdd = () => {
-            // pakai Bootstrap global
             const modalEl = tambahModal.value;
             if (modalEl) {
                 const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
-                    backdrop: 'static', // Modal tidak akan tertutup saat klik overlay
-                    keyboard: false     // Modal tidak bisa ditutup dengan ESC
+                    backdrop: 'static',
+                    keyboard: false
                 });
                 modal.show();
             }
@@ -219,7 +214,7 @@ export default {
                 const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
                 modal.hide();
             }
-            form.jabatan = ""; // reset form
+            form.jabatan = "";
         };
 
         const submitJabatan = () => {
@@ -231,29 +226,30 @@ export default {
             console.log("Submit Jabatan:", form.jabatan);
             closeJabatan();
             toast("Jabatan berhasil disimpan!", "success");
+            refreshTable(); // ✅ langsung refresh setelah submit
         };
 
         onMounted(async () => {
             await fetchJabatans();
             nextTick(() => {
                 feather.replace();
-                initDataTable(tableSelector); // selector tabel
+                initDataTable(tableSelector);
                 initTooltips();
             });
         });
-        // Re-init DataTable & Feather jika halaman diperbarui (SPA)
+
         onUpdated(() => {
             feather.replace();
             initDataTable(tableSelector);
-            initTooltips(); // aktifkan tooltip
+            initTooltips();
         });
 
         onBeforeUnmount(() => {
             feather.replace();
-            initTooltips(); // aktifkan tooltip
+            initTooltips();
         });
 
-        return { tambahModal, refreshTable, form, openModalAdd, closeJabatan, submitJabatan };
+        return { tambahModal, refreshTable, form, openModalAdd, closeJabatan, submitJabatan, jabatansState };
     },
 };
 </script>

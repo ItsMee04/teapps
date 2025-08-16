@@ -72,7 +72,9 @@
 </template>
 
 <script>
-import AuthService from '../services/auth';
+import axios from 'axios';
+import { router } from '@inertiajs/vue3'
+
 export default {
     name: "Login",
     layout: null, // Tidak pakai layout
@@ -81,58 +83,48 @@ export default {
             form: {
                 email: "",
                 password: "",
+                remember: false,
             },
             errors: {},
         };
     },
-    mounted() {
-        if ($('.toggle-password').length > 0) {
-            $(document).on('click', '.toggle-password', function () {
-                $(this).toggleClass("fa-eye fa-eye-slash");
-                var input = $(".pass-input");
-                if (input.attr("type") === "password") {
-                    input.attr("type", "text");
-                } else {
-                    input.attr("type", "password");
-                }
-            });
-        }
-    },
-    beforeUnmount() {
-        $(this.$el).off('click', '.toggle-password');
-    },
     methods: {
         clearError(field) {
-            // Menghapus kesalahan untuk field tertentu
             if (this.errors[field]) {
                 this.$delete(this.errors, field);
             }
         },
         async submitLogin() {
-            // Validasi
             if (!this.form.email) {
-                this.$toast("Email wajib diisi", "error")
-                return
+                this.$toast("Email wajib diisi", "error");
+                return;
             }
             if (!this.form.password) {
-                this.$toast("Password wajib diisi", "error")
-                return
+                this.$toast("Password wajib diisi", "error");
+                return;
             }
 
             try {
-                const response = await AuthService.login(this.form)
+                // 🔑 kirim ke /login (bukan /api/login)
+                const response = await axios.post('/login', this.form);
 
-                this.$toast("Login berhasil!", "success")
-                this.$inertia.visit('/dashboard')
-            } catch (error) {
-                if (error.response) {
-                    // Handle error dari API
-                    if (error.response.status === 422) {
-                        this.errors = error.response.data.errors
-                    }
-                    this.$toast(error.response.data.message || 'Login gagal', "error")
+                if (response.data.success) {
+                    this.$toast("Login berhasil", "success");
+                    // langsung redirect ke dashboard
+                    router.visit('/dashboard');
                 } else {
-                    this.$toast("Terjadi kesalahan pada server", "error")
+                    this.$toast(response.data.message || 'Login gagal', "error");
+                }
+            } catch (error) {
+                console.log("Full error:", error);
+
+                if (error.response) {
+                    if (error.response.status === 422) {
+                        this.errors = error.response.data.errors;
+                    }
+                    this.$toast(error.response.data.message || 'Login gagal', "error");
+                } else {
+                    this.$toast("Terjadi kesalahan pada server", "error");
                 }
             }
         }

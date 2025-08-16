@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Role;
+use App\Models\Pegawai;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,6 +20,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    protected $with = ['pegawai', 'role'];
     protected $fillable = [
         'pegawai_id',
         'role_id',

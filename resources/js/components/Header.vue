@@ -169,8 +169,8 @@
                             <img src="/resources/assets/img/profiles/avator1.jpg" alt="" class="img-fluid">
                         </span>
                         <span class="user-detail">
-                            <span class="user-name">John Smilga</span>
-                            <span class="user-role">Super Admin</span>
+                            <span class="user-name">{{userName}}</span>
+                            <span class="user-role">{{roleName}}</span>
                         </span>
                     </span>
                 </a>
@@ -180,8 +180,8 @@
                             <span class="user-img"><img src="/resources/assets/img/profiles/avator1.jpg" alt="">
                                 <span class="status online"></span></span>
                             <div class="profilesets">
-                                <h6>John Smilga</h6>
-                                <h5>Super Admin</h5>
+                                <h6>{{userName}}</h6>
+                                <h5>{{roleName}}</h5>
                             </div>
                         </div>
                         <hr class="m-0">
@@ -215,20 +215,32 @@
 
 <script>
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import axios from 'axios'; // Pastikan axios diimpor
 import { initHeaderMobile } from "../utilities/header";
+
 export default {
     name: "Header",
     setup() {
-        //const userName = ref('MeeMee');  
-        const userName = "ItsMee"
+        const userName = ref(''); // Menyimpan nama pengguna
+        const roleName = ref(''); // Menyimpan nama peran pengguna
         const dateTime = ref('');
-
         let intervalId = null;
+
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get('/users/getUsers'); // Ganti dengan endpoint yang sesuai
+                if (response.data.success) {
+                    userName.value = response.data.Data[0].pegawai.nama; // Mengambil nama pengguna
+                    roleName.value = response.data.Data[0].role.role; // Mengambil nama pengguna
+                }
+            } catch (error) {
+                console.error('Error fetching user:', error);
+            }
+        };
+
 
         const updateDateTime = () => {
             const now = new Date();
-
-            // Array nama hari dan bulan
             const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
             const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -247,7 +259,8 @@ export default {
         onMounted(() => {
             nextTick(() => {
                 initHeaderMobile();
-                feather.replace()
+                fetchUser(); // Panggil fetchUser  saat komponen dimuat
+                feather.replace();
                 updateDateTime();
                 intervalId = setInterval(updateDateTime, 1000);
             });
@@ -257,10 +270,12 @@ export default {
             clearInterval(intervalId);
         });
 
-        return { userName, dateTime };
+        return { userName, dateTime, roleName };
     }
 }
 </script>
+
+
 <style>
 .running-text {
     overflow: hidden;
