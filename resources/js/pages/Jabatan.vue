@@ -492,8 +492,7 @@ export default {
                 tableEl.addEventListener("click", handleDeleteClick);
             }
         }
-
-
+        // FUNCTION DELETE //
 
         onMounted(async () => {
             await fetchJabatans();
