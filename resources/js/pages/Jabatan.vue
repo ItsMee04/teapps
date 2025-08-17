@@ -47,31 +47,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(jabatan, index) in jabatansState" :key="jabatan.id">
-                                        <td>{{ index + 1 }}</td>
-                                        <td>{{ jabatan.jabatan }}</td>
-                                        <td>
-                                            <span class="badge" :class="jabatan.status ? 'bg-success' : 'bg-danger'">
-                                                {{ jabatan.status ? "Aktif" : "Non-Aktif" }}
-                                            </span>
-                                        </td>
-                                        <td class="action-table-data">
-                                            <div class="edit-delete-action">
-                                                <a class="me-2 edit-icon p-2" href="product-details.html"
-                                                    data-bs-toggle="tooltip" title="View Product">
-                                                    <i data-feather="eye" class="feather-eye"></i>
-                                                </a>
-                                                <a class="me-2 p-2" href="edit-product.html" data-bs-toggle="tooltip"
-                                                    title="Edit Product">
-                                                    <i data-feather="edit" class="feather-edit"></i>
-                                                </a>
-                                                <a class="confirm-text p-2" href="javascript:void(0);"
-                                                    data-bs-toggle="tooltip" title="Delete Product">
-                                                    <i data-feather="trash-2" class="feather-trash-2"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -101,21 +76,79 @@
                                         <label class="form-label">JABATAN</label>
                                         <input type="text" v-model="form.jabatan" class="form-control" />
                                     </div>
-                                    <!-- <div class="mb-3">
-                                        <label class="form-label">Category Slug</label>
-                                        <input type="text" class="form-control">
-                                    </div>
-                                    <div class="mb-0">
-                                        <div
-                                            class="status-toggle modal-status d-flex justify-content-between align-items-center">
-                                            <span class="status-label">Status</span>
-                                            <input type="checkbox" id="user2" class="check" checked>
-                                            <label for="user2" class="checktoggle"></label>
-                                        </div>
-                                    </div> -->
                                     <div class="modal-footer-btn">
                                         <button type="button" class="btn btn-cancel btn-warning me-2"
                                             @click="closeJabatan">
+                                            CANCEL
+                                        </button>
+                                        <button type="submit" class="btn btn-submit btn-secondary">
+                                            SIMPAN JABATAN
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" ref="viewModal">
+            <div class="modal-dialog modal-dialog-centered custom-modal-two">
+                <div class="modal-content">
+                    <div class="page-wrapper-new p-0">
+                        <div class="content">
+                            <div class="modal-header border-0 custom-modal-header bg-secondary">
+                                <div class="page-title">
+                                    <h4 class="text-white">
+                                        <b>VIEW JABATAN</b>
+                                    </h4>
+                                </div>
+                                <button type="button" class="close text-white" @click="closeView">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body custom-modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">JABATAN</label>
+                                    <input type="text" v-model="form.jabatanView" class="form-control" readonly />
+                                </div>
+                                <div class="modal-footer-btn">
+                                    <button type="button" class="btn btn-cancel btn-warning me-2" @click="closeView">
+                                        CANCEL
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" ref="editModal">
+            <div class="modal-dialog modal-dialog-centered custom-modal-two">
+                <div class="modal-content">
+                    <div class="page-wrapper-new p-0">
+                        <div class="content">
+                            <div class="modal-header border-0 custom-modal-header bg-secondary">
+                                <div class="page-title">
+                                    <h4 class="text-white">
+                                        <b>VIEW JABATAN</b>
+                                    </h4>
+                                </div>
+                                <button type="button" class="close text-white" @click="closeEdit">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body custom-modal-body">
+                                <form @submit.prevent="submitEditJabatan">
+                                    <div class="mb-3">
+                                        <label class="form-label">JABATAN</label>
+                                        <input type="text" v-model="form.jabatanEdit" class="form-control" />
+                                    </div>
+                                    <div class="modal-footer-btn">
+                                        <button type="button" class="btn btn-cancel btn-warning me-2"
+                                            @click="closeEdit">
                                             CANCEL
                                         </button>
                                         <button type="submit" class="btn btn-submit btn-secondary">
@@ -133,40 +166,25 @@
 </template>
 
 <script>
-import {
-    getCurrentInstance,
-    ref,
-    reactive,
-    onMounted,
-    onBeforeUnmount,
-    nextTick,
-    onUpdated,
-} from "vue";
-import { initDataTable } from "@/utilities/datatable.js";
+import { getCurrentInstance, ref, reactive, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { initTooltips } from "../utilities/tooltip";
 import axios from "../utilities/axios.js";
 
 export default {
     name: "Jabatan",
-    props: {
-        jabatans: {
-            type: Array,
-            default: () => [],
-        },
-    },
-    setup(props) {
+    setup() {
         const { appContext } = getCurrentInstance();
         const toast = appContext.config.globalProperties.$toast;
 
         const tableSelector = "#JabatanTable";
         const tambahModal = ref(null);
+        const viewModal = ref(null);
+        const editModal = ref(null);
 
-        // ✅ state lokal buat bisa diubah
-        const jabatansState = ref([...props.jabatans]);
+        const jabatansState = ref([]);
+        const form = reactive({ jabatan: "", jabatanView: "", jabatanEdit: "" });
 
-        const form = reactive({
-            jabatan: "",
-        });
+        let dataTableInstance = null;
 
         // Fetch data
         const fetchJabatans = async () => {
@@ -181,22 +199,89 @@ export default {
             }
         };
 
-        // Refresh tabel
-        const refreshTable = async () => {
-            if (await fetchJabatans()) {
-                const tableEl = document.querySelector(tableSelector);
-                if (tableEl && $.fn.DataTable.isDataTable(tableEl)) {
-                    $(tableEl).DataTable().destroy();
-                }
-                nextTick(() => {
-                    initDataTable(tableSelector);
+        // Init DataTable sekali saja
+        const initTable = async () => {
+            await nextTick(); // tunggu DOM render
+
+            if (!dataTableInstance) {
+                dataTableInstance = $(tableSelector).DataTable({
+                    data: jabatansState.value, // bind data awal
+                    columns: [
+                        {
+                            data: null,
+                            render: (data, type, row, meta) => meta.row + 1 // nomor urut
+                        },
+                        { data: 'jabatan' },
+                        {
+                            data: 'status',
+                            render: (data) => data
+                                ? `<span class="badge bg-success">Aktif</span>`
+                                : `<span class="badge bg-danger">Non-Aktif</span>`
+                        },
+                        {
+                            data: null,
+                            orderable: false,
+                            className: "action-table-data",
+                            render: (data, type, row) => `
+                                <div class="edit-delete-action">
+                                    <a class="btn-view me-2 edit-icon p-2" data-bs-toggle="tooltip" title="View" data-id="${row.id}">
+                                        <i data-feather="eye"></i>
+                                    </a>
+                                    <a class="btn-edit me-2 p-2" data-bs-toggle="tooltip" title="Edit" data-id="${row.id}">
+                                        <i data-feather="edit"></i>
+                                    </a>
+                                    <a class="btn-delete p-2" data-bs-toggle="tooltip" title="Delete" data-id="${row.id}">
+                                        <i data-feather="trash-2"></i>
+                                    </a>
+                                </div>
+                            `
+                        }
+                    ],
+                    responsive: true,   // ✅ aktifkan plugin responsive
+                    autoWidth: false,   // ✅ biar kolom tidak ngunci width
+                    bFilter: true,
+                    sDom: 'fBtlpi',
+                    ordering: true,
+                    language: {
+                        search: ' ',
+                        sLengthMenu: '_MENU_',
+                        searchPlaceholder: "Search",
+                        info: "_START_ - _END_ of _TOTAL_ items",
+                        paginate: { next: ' <i class="fa fa-angle-right"></i>', previous: '<i class="fa fa-angle-left"></i>' },
+                    },
+                    initComplete: () => {
+                        $('.dataTables_filter').appendTo('.search-input');
+                    }
+                });
+
+                // Feather icon & tooltip setelah draw
+                dataTableInstance.on('draw', () => {
                     feather.replace();
                     initTooltips();
                 });
-                toast("Berhasil merefresh data", "success");
             }
         };
 
+        const refreshTableInternal = async () => {
+            const success = await fetchJabatans();
+            if (!success) return;
+
+            await nextTick(); // tunggu DOM render
+
+            dataTableInstance.clear();
+            jabatansState.value.forEach(jabatan => {
+                dataTableInstance.row.add(jabatan);
+            });
+            dataTableInstance.draw();
+        };
+
+        // Fungsi yang dipanggil saat klik tombol refresh
+        const refreshTable = async () => {
+            await refreshTableInternal();
+            toast("Data berhasil direfresh!", "success");
+        };
+
+        // FUNCTION TAMBAH JABATAN //
         const openModalAdd = () => {
             const modalEl = tambahModal.value;
             if (modalEl) {
@@ -217,39 +302,227 @@ export default {
             form.jabatan = "";
         };
 
-        const submitJabatan = () => {
+        const submitJabatan = async () => {
             if (!form.jabatan.trim()) {
                 toast("Jabatan wajib diisi!", "error");
                 return;
             }
 
-            console.log("Submit Jabatan:", form.jabatan);
-            closeJabatan();
-            toast("Jabatan berhasil disimpan!", "success");
-            refreshTable(); // ✅ langsung refresh setelah submit
+            try {
+                const response = await axios.post('/jabatan/storeJabatan', { jabatan: form.jabatan });
+
+                toast(response.data.message || "Jabatan berhasil disimpan!", "success");
+                closeJabatan();
+                await refreshTableInternal();
+
+            } catch (error) {
+                const errors = error.response?.data?.errors;
+                if (errors) {
+                    let errorList = "<ul style='text-align:left;'>";
+                    for (let key in errors) {
+                        errorList += `<li>${errors[key][0]}</li>`;
+                    }
+                    errorList += "</ul>";
+                    toast(errorList, "error");
+                } else {
+                    toast(error.response?.data?.message || "Gagal menyimpan jabatan", "error");
+                }
+            }
         };
+        // FUNCTION TAMBAH JABATAN //
+
+        // FUNCTION VIEW //
+        const openModalView = (jabatan) => {
+            form.jabatanView = jabatan.jabatan;
+
+            nextTick(() => { // tunggu DOM update dulu
+                const modalEl = viewModal.value;
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: "static", keyboard: false });
+                    modal.show();
+                }
+            });
+        };
+
+        // handler klik tombol view
+        function handleViewClick(e) {
+            const btn = e.target.closest(".btn-view");
+            if (!btn) return;
+
+            const id = btn.dataset.id;
+            const jabatan = jabatansState.value.find(j => j.id == id);
+            if (!jabatan) return;
+
+            openModalView(jabatan);
+        }
+
+        // 👉 bikin function khusus untuk bind event
+        function bindViewClick() {
+            const tableEl = document.querySelector(tableSelector);
+            if (tableEl) {
+                tableEl.addEventListener("click", handleViewClick);
+            }
+        }
+
+        const closeView = () => {
+            const modalEl = viewModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+            }
+        };
+        // FUNCTION VIEW //
+
+        //FUNCTION EDIT //
+        const openModalEdit = (jabatan) => {
+            form.id = jabatan.id; // simpan ID untuk update
+            form.jabatanEdit = jabatan.jabatan;
+
+            nextTick(() => { // tunggu DOM update dulu
+                const modalEl = editModal.value;
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: "static", keyboard: false });
+                    modal.show();
+                }
+            });
+        };
+        // handler klik tombol edit
+        function handleEditClick(e) {
+            const btn = e.target.closest(".btn-edit");
+            if (!btn) return;
+
+            const id = btn.dataset.id;
+            const jabatan = jabatansState.value.find(j => j.id == id);
+            if (!jabatan) return;
+
+            openModalEdit(jabatan);
+        }
+
+        // 👉 bikin function khusus untuk bind event
+        function bindEditClick() {
+            const tableEl = document.querySelector(tableSelector);
+            if (tableEl) {
+                tableEl.addEventListener("click", handleEditClick);
+            }
+        }
+
+        const closeEdit = () => {
+            const modalEl = editModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+            }
+            form.id = null; // reset ID
+            form.jabatanEdit = "";
+        };
+
+        const submitEditJabatan = async () => {
+            if (!form.jabatanEdit.trim()) {
+                toast("Jabatan wajib diisi!", "error");
+                return;
+            }
+
+            try {
+                const response = await axios.post(`/jabatan/updateJabatan/${form.id}`, {
+                    jabatan: form.jabatanEdit
+                });
+
+                toast(response.data.message || "Jabatan berhasil diupdate!", "success");
+                closeEdit();
+                await refreshTableInternal();
+
+            } catch (error) {
+                const errors = error.response?.data?.errors;
+                if (errors) {
+                    let errorList = "<ul style='text-align:left;'>";
+                    for (let key in errors) {
+                        errorList += `<li>${errors[key][0]}</li>`;
+                    }
+                    errorList += "</ul>";
+                    toast(errorList, "error");
+                } else {
+                    toast(error.response?.data?.message || "Gagal mengupdate jabatan", "error");
+                }
+            }
+        };
+        // FUNCTION EDIT //
+
+        // FUNCTION DELETE //
+        function handleDeleteClick(e) {
+            const btn = e.target.closest(".btn-delete");
+            if (!btn) return; // kalau bukan tombol delete, abaikan
+
+            const id = btn.dataset.id;
+            const jabatan = jabatansState.value.find(j => j.id == id);
+            if (!jabatan) return;
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: `Jabatan "${jabatan.jabatan}" akan dihapus!`,
+                type: "warning",
+                showCancelButton: !0,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary",
+                    cancelButton: "btn btn-danger ml-1",
+                },
+                buttonsStyling: !1,
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        // ✅ API hapus
+                        await axios.delete(`/jabatan/deleteJabatan/${jabatan.id}`);
+
+                        // refresh table setelah hapus
+                        await refreshTableInternal();
+
+                        toast( "Jabatan berhasil dihapus!", "success");
+                    } catch (err) {
+                         toast( "Jabatan berhasil disimpan!", "error");
+                    }
+                }
+            });
+        }
+
+        function bindDeleteClick() {
+            const tableEl = document.querySelector(tableSelector);
+            if (tableEl) {
+                tableEl.addEventListener("click", handleDeleteClick);
+            }
+        }
+
+
 
         onMounted(async () => {
             await fetchJabatans();
-            nextTick(() => {
-                feather.replace();
-                initDataTable(tableSelector);
-                initTooltips();
-            });
-        });
-
-        onUpdated(() => {
+            await initTable();
             feather.replace();
-            initDataTable(tableSelector);
             initTooltips();
+            bindViewClick();
+            bindEditClick();
+            bindDeleteClick();
         });
 
         onBeforeUnmount(() => {
-            feather.replace();
-            initTooltips();
+            if (dataTableInstance) dataTableInstance.destroy();
         });
 
-        return { tambahModal, refreshTable, form, openModalAdd, closeJabatan, submitJabatan, jabatansState };
-    },
+        return {
+            tambahModal,
+            viewModal,
+            editModal,
+            form,
+            openModalAdd,
+            closeJabatan,
+            closeView,
+            closeEdit,
+            submitJabatan,
+            submitEditJabatan,
+            jabatansState,
+            refreshTable
+        };
+    }
 };
 </script>

@@ -20,8 +20,8 @@ await import("../assets/js/jquery.dataTables.min.js");
 await import("../assets/js/dataTables.bootstrap5.min.js");
 import "../assets/js/feather.min.js";
 await import("../assets/plugins/select2/js/select2.min.js");
-import "../assets/plugins/sweetalert/sweetalert2.all.min.js";
-await import("../assets/plugins/sweetalert/sweetalerts.min.js");
+// await import("../assets/plugins/sweetalert/sweetalert2.all.min.js");
+// await import("../assets/plugins/sweetalert/sweetalerts.min.js");
 await import("../assets/js/script.js");
 
 // =========================
@@ -33,6 +33,10 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import toastfy from "./utilities/toastfy.js";
 import { initTooltips } from "./utilities/tooltip.js";
 import { Inertia } from "@inertiajs/inertia";
+
+// ✅ Tambahkan import ini
+import Swal from "sweetalert2";
+window.Swal = Swal; // opsional, biar bisa dipakai global di mana saja
 
 // Layout Global
 import MainLayout from "@/Layouts/MainLayout.vue";
