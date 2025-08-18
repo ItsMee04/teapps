@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\UserManagement\RoleController;
 use App\Http\Controllers\UserManagement\UserController;
 use App\Http\Controllers\UserManagement\JabatanController;
+use App\Http\Controllers\UserManagement\PegawaiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,14 +44,19 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('Role');
     })->name('role');
     Route::get('role/getRole', [RoleController::class, 'getRole']);
-        Route::post('role/storeRole', [RoleController::class, 'storeRole']);
-        Route::get('role/getRoleByID/{id}', [RoleController::class, 'getRoleByID']);
-        Route::post('role/updateRole/{id}', [RoleController::class, 'updateRole']);
-        Route::delete('role/deleteRole/{id}', [RoleController::class, 'deleteRole']);
+    Route::post('role/storeRole', [RoleController::class, 'storeRole']);
+    Route::get('role/getRoleByID/{id}', [RoleController::class, 'getRoleByID']);
+    Route::post('role/updateRole/{id}', [RoleController::class, 'updateRole']);
+    Route::delete('role/deleteRole/{id}', [RoleController::class, 'deleteRole']);
 
     Route::get('/pegawai', function () {
         return Inertia::render('Pegawai');
     })->name('pegawai');
+    Route::get('pegawai/getPegawai', [PegawaiController::class, 'getPegawai']);
+    Route::post('pegawai/storePegawai', [PegawaiController::class, 'storePegawai']);
+    Route::get('pegawai/getPegawaiByID/{id}', [PegawaiController::class, 'getPegawaiByID']);
+    Route::post('pegawai/updatePegawai/{id}', [PegawaiController::class, 'updatePegawai']);
+    Route::delete('pegawai/deletePegawai/{id}', [PegawaiController::class, 'deletePegawai']);
 
     Route::get('/users', function () {
         return Inertia::render('Users');
