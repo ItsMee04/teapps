@@ -47,38 +47,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(role, index) in roles" :key="role.id">
-                                        <td>{{ index + 1 }}</td>
-                                        <td>{{ role.role }}</td>
-                                        <td>
-                                            <span class="badge" :class="role.status
-                                                ? 'bg-success'
-                                                : 'bg-danger'
-                                                ">
-                                                {{
-                                                    role.status
-                                                        ? "Aktif"
-                                                        : "Non-Aktif"
-                                                }}
-                                            </span>
-                                        </td>
-                                        <td class="action-table-data">
-                                            <div class="edit-delete-action">
-                                                <a class="me-2 edit-icon p-2" href="product-details.html"
-                                                    data-bs-toggle="tooltip" title="View Product">
-                                                    <i data-feather="eye" class="feather-eye"></i>
-                                                </a>
-                                                <a class="me-2 p-2" href="edit-product.html" data-bs-toggle="tooltip"
-                                                    title="Edit Product">
-                                                    <i data-feather="edit" class="feather-edit"></i>
-                                                </a>
-                                                <a class="confirm-text p-2" href="javascript:void(0);"
-                                                    data-bs-toggle="tooltip" title="Delete Product">
-                                                    <i data-feather="trash-2" class="feather-trash-2"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -108,18 +76,6 @@
                                         <label class="form-label">ROLE</label>
                                         <input type="text" v-model="form.role" class="form-control" />
                                     </div>
-                                    <!-- <div class="mb-3">
-                                        <label class="form-label">Category Slug</label>
-                                        <input type="text" class="form-control">
-                                    </div>
-                                    <div class="mb-0">
-                                        <div
-                                            class="status-toggle modal-status d-flex justify-content-between align-items-center">
-                                            <span class="status-label">Status</span>
-                                            <input type="checkbox" id="user2" class="check" checked>
-                                            <label for="user2" class="checktoggle"></label>
-                                        </div>
-                                    </div> -->
                                     <div class="modal-footer-btn">
                                         <button type="button" class="btn btn-cancel btn-warning me-2"
                                             @click="closeRole">
@@ -136,80 +92,202 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" ref="viewModal">
+            <div class="modal-dialog modal-dialog-centered custom-modal-two">
+                <div class="modal-content">
+                    <div class="page-wrapper-new p-0">
+                        <div class="content">
+                            <div class="modal-header border-0 custom-modal-header bg-secondary">
+                                <div class="page-title">
+                                    <h4 class="text-white">
+                                        <b>VIEW ROLE</b>
+                                    </h4>
+                                </div>
+                                <button type="button" class="close text-white" @click="closeView">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body custom-modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">ROLE</label>
+                                    <input type="text" v-model="form.roleView" class="form-control" readonly />
+                                </div>
+                                <div class="modal-footer-btn">
+                                    <button type="button" class="btn btn-cancel btn-warning me-2" @click="closeView">
+                                        CANCEL
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" ref="editModal">
+            <div class="modal-dialog modal-dialog-centered custom-modal-two">
+                <div class="modal-content">
+                    <div class="page-wrapper-new p-0">
+                        <div class="content">
+                            <div class="modal-header border-0 custom-modal-header bg-secondary">
+                                <div class="page-title">
+                                    <h4 class="text-white">
+                                        <b>EDIT ROLE</b>
+                                    </h4>
+                                </div>
+                                <button type="button" class="close text-white" @click="closeEdit">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body custom-modal-body">
+                                <form @submit.prevent="submitEditRole">
+                                    <div class="mb-3">
+                                        <label class="form-label">ROLE</label>
+                                        <input type="text" v-model="form.roleEdit" class="form-control" />
+                                    </div>
+                                    <div class="modal-footer-btn">
+                                        <button type="button" class="btn btn-cancel btn-warning me-2"
+                                            @click="closeEdit">
+                                            CANCEL
+                                        </button>
+                                        <button type="submit" class="btn btn-submit btn-secondary">
+                                            SIMPAN JABATAN
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
-import {
-    getCurrentInstance,
-    ref,
-    reactive,
-    onMounted,
-    onBeforeUnmount,
-    nextTick,
-    onUpdated,
-} from "vue";
-import { initDataTable } from "@/utilities/datatable.js";
+import { getCurrentInstance, ref, reactive, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { initTooltips } from "../utilities/tooltip";
 import axios from "../utilities/axios.js";
 
 export default {
     name: "Role",
-    props: {
-        roles: {
-            type: Array,
-            default: () => [],
-        },
-    },
     setup() {
-        const { appContext } = getCurrentInstance(); // ambil global properties
+        const { appContext } = getCurrentInstance();
         const toast = appContext.config.globalProperties.$toast;
 
         const tableSelector = "#RoleTable";
         const tambahModal = ref(null);
-        const form = reactive({
-            role: "",
-        });
+        const viewModal = ref(null);
+        const editModal = ref(null);
 
+        const roleState = ref([]);
+        const form = reactive({ role: "", roleView: "", roleEdit: "" });
 
-        // Fetch data dari API
+        let dataTableInstance = null;
+
+        //FETCH DATA ROLE
         const fetchRoles = async () => {
             try {
-                const response = await axios.get('/api/role/getRole'); // ganti URL sesuai API
-                roles.value = response.data;
+                const response = await axios.get('/role/getRole');
+                roleState.value = response.data.Data;
+                return true;
             } catch (error) {
                 toast("Gagal mengambil data", "error");
                 console.error(error);
+                return false;
             }
         };
 
-        // Refresh tabel: ambil data baru + re-init DataTable
-        const refreshTable = async () => {
-            if (await fetchRoles()) {
-                // ambil data terbaru
-                // Hapus DataTable lama
-                const tableEl = document.querySelector(tableSelector);
-                if (tableEl && $.fn.DataTable.isDataTable(tableEl)) {
-                    $(tableEl).DataTable().destroy();
-                }
-                // Re-init DataTable dan tooltips
-                nextTick(() => {
-                    initDataTable(tableSelector);
+        // Init DataTable sekali saja
+        const initTable = async () => {
+            await nextTick(); // tunggu DOM render
+
+            if (!dataTableInstance) {
+                dataTableInstance = $(tableSelector).DataTable({
+                    data: roleState.value, // bind data awal
+                    columns: [
+                        {
+                            data: null,
+                            render: (data, type, row, meta) => meta.row + 1 // nomor urut
+                        },
+                        { data: 'role' },
+                        {
+                            data: 'status',
+                            render: (data) => data
+                                ? `<span class="badge bg-success">Aktif</span>`
+                                : `<span class="badge bg-danger">Non-Aktif</span>`
+                        },
+                        {
+                            data: null,
+                            orderable: false,
+                            className: "action-table-data",
+                            render: (data, type, row) => `
+                                <div class="edit-delete-action">
+                                    <a class="btn-view me-2 edit-icon p-2" data-bs-toggle="tooltip" title="View" data-id="${row.id}">
+                                        <i data-feather="eye"></i>
+                                    </a>
+                                    <a class="btn-edit me-2 p-2" data-bs-toggle="tooltip" title="Edit" data-id="${row.id}">
+                                        <i data-feather="edit"></i>
+                                    </a>
+                                    <a class="btn-delete p-2" data-bs-toggle="tooltip" title="Delete" data-id="${row.id}">
+                                        <i data-feather="trash-2"></i>
+                                    </a>
+                                </div>
+                            `
+                        }
+                    ],
+                    responsive: true,   // ✅ aktifkan plugin responsive
+                    autoWidth: false,   // ✅ biar kolom tidak ngunci width
+                    bFilter: true,
+                    sDom: 'fBtlpi',
+                    ordering: true,
+                    language: {
+                        search: ' ',
+                        sLengthMenu: '_MENU_',
+                        searchPlaceholder: "Search",
+                        info: "_START_ - _END_ of _TOTAL_ items",
+                        paginate: { next: ' <i class="fa fa-angle-right"></i>', previous: '<i class="fa fa-angle-left"></i>' },
+                    },
+                    initComplete: () => {
+                        $('.dataTables_filter').appendTo('.search-input');
+                    }
+                });
+
+                // Feather icon & tooltip setelah draw
+                dataTableInstance.on('draw', () => {
                     feather.replace();
                     initTooltips();
                 });
-                // Tampilkan toast hanya jika berhasil mengambil data
-                toast("Berhasil merefresh data", "success");
-            };
+            }
         };
 
+        const refreshTableInternal = async () => {
+            const success = await fetchRoles();
+            if (!success) return;
+
+            await nextTick(); // tunggu DOM render
+
+            dataTableInstance.clear();
+            roleState.value.forEach(role => {
+                dataTableInstance.row.add(role);
+            });
+            dataTableInstance.draw();
+        };
+
+        // Fungsi yang dipanggil saat klik tombol refresh
+        const refreshTable = async () => {
+            await refreshTableInternal();
+            toast("Data berhasil direfresh!", "success");
+        };
+
+        // FUNCTION TAMBAH ROLE //
         const openModalAdd = () => {
-            // pakai Bootstrap global
             const modalEl = tambahModal.value;
             if (modalEl) {
                 const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
-                    backdrop: 'static', // Modal tidak akan tertutup saat klik overlay
-                    keyboard: false     // Modal tidak bisa ditutup dengan ESC
+                    backdrop: 'static',
+                    keyboard: false
                 });
                 modal.show();
             }
@@ -221,41 +299,232 @@ export default {
                 const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
                 modal.hide();
             }
-            form.role = ""; // reset form
+            form.role = "";
         };
 
-        const submitRole = () => {
+        const submitRole = async () => {
             if (!form.role.trim()) {
                 toast("Role wajib diisi!", "error");
                 return;
             }
 
-            console.log("Submit Role:", form.role);
-            closeRole();
-            toast("Role berhasil disimpan!", "success");
+            try {
+                const response = await axios.post('/role/storeRole', { role: form.role });
+
+                toast(response.data.message || "Role berhasil disimpan!", "success");
+                closeRole();
+                await refreshTableInternal();
+
+            } catch (error) {
+                const errors = error.response?.data?.errors;
+                if (errors) {
+                    let errorList = "<ul style='text-align:left;'>";
+                    for (let key in errors) {
+                        errorList += `<li>${errors[key][0]}</li>`;
+                    }
+                    errorList += "</ul>";
+                    toast(errorList, "error");
+                } else {
+                    toast(error.response?.data?.message || "Gagal menyimpan role", "error");
+                }
+            }
         };
+        // FUNCTION TAMBAH ROLE //
+
+        // FUNCTION VIEW //
+        const openModalView = (role) => {
+            form.roleView = role.role;
+
+            nextTick(() => { // tunggu DOM update dulu
+                const modalEl = viewModal.value;
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: "static", keyboard: false });
+                    modal.show();
+                }
+            });
+        };
+
+        // handler klik tombol view
+        function handleViewClick(e) {
+            const btn = e.target.closest(".btn-view");
+            if (!btn) return;
+
+            const id = btn.dataset.id;
+            const role = roleState.value.find(j => j.id == id);
+            if (!role) return;
+
+            openModalView(role);
+        }
+
+        // 👉 bikin function khusus untuk bind event
+        function bindViewClick() {
+            const tableEl = document.querySelector(tableSelector);
+            if (tableEl) {
+                tableEl.addEventListener("click", handleViewClick);
+            }
+        }
+
+        const closeView = () => {
+            const modalEl = viewModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+            }
+        };
+        // FUNCTION VIEW //
+
+        //FUNCTION EDIT //
+        const openModalEdit = (role) => {
+            form.id = role.id; // simpan ID untuk update
+            form.roleEdit = role.role;
+
+            nextTick(() => { // tunggu DOM update dulu
+                const modalEl = editModal.value;
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: "static", keyboard: false });
+                    modal.show();
+                }
+            });
+        };
+        // handler klik tombol edit
+        function handleEditClick(e) {
+            const btn = e.target.closest(".btn-edit");
+            if (!btn) return;
+
+            const id = btn.dataset.id;
+            const role = roleState.value.find(j => j.id == id);
+            if (!role) return;
+
+            openModalEdit(role);
+        }
+
+        // 👉 bikin function khusus untuk bind event
+        function bindEditClick() {
+            const tableEl = document.querySelector(tableSelector);
+            if (tableEl) {
+                tableEl.addEventListener("click", handleEditClick);
+            }
+        }
+
+        const closeEdit = () => {
+            const modalEl = editModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+            }
+            form.id = null; // reset ID
+            form.roleEdit = "";
+        };
+
+        const submitEditRole = async () => {
+            if (!form.roleEdit.trim()) {
+                toast("Role wajib diisi!", "error");
+                return;
+            }
+
+            try {
+                const response = await axios.post(`/role/updateRole/${form.id}`, {
+                    role: form.roleEdit
+                });
+
+                toast(response.data.message || "Role berhasil diupdate!", "success");
+                closeEdit();
+                await refreshTableInternal();
+
+            } catch (error) {
+                const errors = error.response?.data?.errors;
+                if (errors) {
+                    let errorList = "<ul style='text-align:left;'>";
+                    for (let key in errors) {
+                        errorList += `<li>${errors[key][0]}</li>`;
+                    }
+                    errorList += "</ul>";
+                    toast(errorList, "error");
+                } else {
+                    toast(error.response?.data?.message || "Gagal mengupdate role", "error");
+                }
+            }
+        };
+        // FUNCTION EDIT //
+
+        // FUNCTION DELETE //
+        function handleDeleteClick(e) {
+            const btn = e.target.closest(".btn-delete");
+            if (!btn) return; // kalau bukan tombol delete, abaikan
+
+            const id = btn.dataset.id;
+            const role = roleState.value.find(j => j.id == id);
+            if (!role) return;
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: `Role "${role.role}" akan dihapus!`,
+                type: "warning",
+                showCancelButton: !0,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary",
+                    cancelButton: "btn btn-danger ml-1",
+                },
+                buttonsStyling: !1,
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        // ✅ API hapus
+                        await axios.delete(`/role/deleteRole/${role.id}`);
+
+                        // refresh table setelah hapus
+                        await refreshTableInternal();
+
+                        toast("Role berhasil dihapus!", "success");
+                    } catch (err) {
+                        toast("Role berhasil disimpan!", "error");
+                    }
+                }
+            });
+        }
+
+        function bindDeleteClick() {
+            const tableEl = document.querySelector(tableSelector);
+            if (tableEl) {
+                tableEl.addEventListener("click", handleDeleteClick);
+            }
+        }
+        // FUNCTION DELETE //
 
         onMounted(async () => {
             await fetchRoles();
-            nextTick(() => {
-                feather.replace();
-                initDataTable(tableSelector); // selector tabel
-                initTooltips();
-            });
-        });
-        // Re-init DataTable & Feather jika halaman diperbarui (SPA)
-        onUpdated(() => {
+            await initTable();
             feather.replace();
-            initDataTable(tableSelector);
-            initTooltips(); // aktifkan tooltip
+            initTooltips();
+            bindViewClick();
+            closeView();
+            bindEditClick();
+            bindDeleteClick();
         });
 
         onBeforeUnmount(() => {
-            feather.replace();
-            initTooltips(); // aktifkan tooltip
+            if (dataTableInstance) dataTableInstance.destroy();
         });
 
-        return { tambahModal, refreshTable, form, openModalAdd, closeRole, submitRole };
+        return {
+            tambahModal,
+            viewModal,
+            editModal,
+            form,
+            openModalAdd,
+            openModalView,
+            openModalEdit,
+            closeRole,
+            closeView,
+            closeEdit,
+            submitRole,
+            submitEditRole,
+            roleState,
+            refreshTable
+        };
     },
 };
 </script>

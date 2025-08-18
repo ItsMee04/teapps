@@ -3,6 +3,7 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\UserManagement\RoleController;
 use App\Http\Controllers\UserManagement\UserController;
 use App\Http\Controllers\UserManagement\JabatanController;
 
@@ -41,6 +42,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/role', function () {
         return Inertia::render('Role');
     })->name('role');
+    Route::get('role/getRole', [RoleController::class, 'getRole']);
+        Route::post('role/storeRole', [RoleController::class, 'storeRole']);
+        Route::get('role/getRoleByID/{id}', [RoleController::class, 'getRoleByID']);
+        Route::post('role/updateRole/{id}', [RoleController::class, 'updateRole']);
+        Route::delete('role/deleteRole/{id}', [RoleController::class, 'deleteRole']);
 
     Route::get('/pegawai', function () {
         return Inertia::render('Pegawai');
