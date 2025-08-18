@@ -81,19 +81,23 @@
                                         <div class="mb-3 col-md-6">
                                             <label class="form-label">NIP<span class="text-danger ms-1">*</span></label>
                                             <input type="text" v-model="form.nip" class="form-control"/>
+                                            <div v-if="errors.nip" class="text-danger small">{{ errors.nip }}</div>
                                         </div>
                                         <div class="mb-3 col-md-6">
                                             <label class="form-label">NAMA<span class="text-danger ms-1">*</span></label>
                                             <input type="text" v-model="form.nama" class="form-control"/>
+                                            <div v-if="errors.nama" class="text-danger small">{{ errors.nama }}</div>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">ALAMAT<span class="text-danger ms-1">*</span></label>
                                         <textarea v-model="form.alamat" class="form-control" cols="30" rows="4"></textarea>
+                                        <div v-if="errors.alamat" class="text-danger small">{{ errors.alamat }}</div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">KONTAK<span class="text-danger ms-1">*</span></label>
                                         <input type="text" v-model="form.kontak" class="form-control"/>
+                                        <div v-if="errors.kontak" class="text-danger small">{{ errors.kontak }}</div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">JABATAN<span class="text-danger ms-1">*</span></label>
@@ -103,12 +107,13 @@
                                                 {{ jabatan.jabatan }}
                                             </option>
                                         </select>
+                                        <div v-if="errors.jabatanSelect" class="text-danger small">{{ errors.jabatanSelect }}</div>
                                     </div>
                                     <div class="add-choosen">
                                         <div class="mb-3">
                                             <label class="form-label">AVATAR</label>
                                             <div class="image-upload">
-                                                <input type="file" name="imagePegawai" id="imagePegawai"/>
+                                                <input type="file" name="imagePegawai" id="imagePegawai" @change="handleImagePegawaiChange"/>
                                                 <div class="image-uploads">
                                                     <i data-feather="upload" class="plus-down-add me-0"></i>
                                                     <h4>UPLOAD AVATAR</h4>
@@ -163,6 +168,14 @@ export default {
             imagePegawai: null,
         });
 
+        const errors = reactive({
+            nip: "",
+            nama: "",
+            alamat: "",
+            kontak: "",
+            jabatanSelect: ""
+        });
+
         let dataTableInstance = null;
         let imageUploader = null;
 
@@ -172,6 +185,11 @@ export default {
                 jabatanList.value = res.data.Data; // misal [{id:1, jabatan:"Manager"}, ...]
                 await nextTick(); // tunggu DOM update option
                 initSelect2("#jabatan", { placeholder: "Pilih Jabatan", allowClear: true });
+
+                // Tambahkan event agar v-model sinkron dengan Select2
+                $('#jabatan').on('change', function () {
+                    form.jabatanSelect = $(this).val();
+                });
             } catch (err) {
                 console.error("Gagal load jabatan:", err);
             }
@@ -306,6 +324,71 @@ export default {
             $('#jabatan').val("").trigger("change");
         };
 
+        const validateForm = () => {
+            errors.nip = form.nip.trim() ? "" : "NIP wajib diisi!";
+            errors.nama = form.nama.trim() ? "" : "Nama wajib diisi!";
+            errors.alamat = form.alamat.trim() ? "" : "Alamat wajib diisi!";
+            if (!form.kontak.trim()) {
+                errors.kontak = "Kontak wajib diisi!";
+            } else if (!/^\d+$/.test(form.kontak.trim())) {
+                errors.kontak = "Kontak hanya boleh angka!";
+            } else if (form.kontak.trim().length < 10) {
+                errors.kontak = "Kontak minimal 10 digit!";
+            } else if (form.kontak.trim().length > 13) {
+                errors.kontak = "Kontak maksimal 13 digit!";
+            } else {
+                errors.kontak = "";
+            }
+            errors.jabatanSelect = form.jabatanSelect ? "" : "Jabatan wajib dipilih!";
+            return !errors.nip && !errors.nama && !errors.alamat && !errors.kontak && !errors.jabatanSelect;
+        };
+
+        function handleImagePegawaiChange(event) {
+            const file = event.target.files[0];
+            form.imagePegawai = file || null;
+        }
+
+        // Submit data pegawai
+        const submitPegawai = async () => {
+            if (!validateForm()) {
+                toast("Mohon lengkapi data!", "error");
+                return;
+            }
+            try {
+                const fd = new FormData();
+                fd.append('nip', form.nip);
+                fd.append('nama', form.nama);
+                fd.append('alamat', form.alamat);
+                fd.append('kontak', form.kontak);
+                fd.append('jabatan', parseInt(form.jabatanSelect));
+                if (form.imagePegawai) fd.append('imagePegawai', form.imagePegawai);
+
+                const response = await axios.post('/pegawai/storePegawai', fd, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+
+                toast(response.data.message || "Pegawai berhasil disimpan!", "success");
+                closePegawai();
+                await refreshTableInternal();
+
+            } catch (error) {
+                const serverErrors = error.response?.data?.errors;
+                if (serverErrors) {
+                    Object.keys(errors).forEach(key => {
+                        errors[key] = serverErrors[key]?.[0] || "";
+                    });
+                    let errorList = "<ul style='text-align:left;'>";
+                    for (let key in serverErrors) {
+                        errorList += `<li>${serverErrors[key][0]}</li>`;
+                    }
+                    errorList += "</ul>";
+                    toast(errorList, "error");
+                } else {
+                    toast(error.response?.data?.message || "Gagal menyimpan pegawai", "error");
+                }
+            }
+        };
+
         onMounted(async () => {
             await fetchPegawais();
             await initTable();
@@ -319,11 +402,14 @@ export default {
         return {
             tambahModal,
             openModalAdd,
+            handleImagePegawaiChange,
+            submitPegawai,
             closePegawai,
             refreshTable,
             form,
             jabatanList,
-            pegawaiState
+            pegawaiState,
+            errors
         };
     },
 };
