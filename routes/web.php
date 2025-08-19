@@ -3,6 +3,7 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Produk\KondisiController;
 use App\Http\Controllers\UserManagement\RoleController;
 use App\Http\Controllers\UserManagement\UserController;
 use App\Http\Controllers\UserManagement\JabatanController;
@@ -27,6 +28,10 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/me', function () {
+        return auth()->user();
+    });
+
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
@@ -65,9 +70,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('users/getUsersByID/{id}', [UserController::class, 'getUsersByID']);
     Route::post('users/updateUsers/{id}', [UserController::class, 'updateUsers']);
 
+    Route::get('/kondisi', function () {
+        return Inertia::render('Kondisi');
+    })->name('kondisi');
+    Route::get('kondisi/getKondisi', [KondisiController::class, 'getKondisi']);
+    Route::post('kondisi/storeKondisi', [KondisiController::class, 'storeKondisi']);
+    Route::get('kondisi/getKondisiByID/{id}', [KondisiController::class, 'getKondisiByID']);
+    Route::post('kondisi/updateKondisi/{id}', [KondisiController::class, 'updateKondisi']);
+    Route::delete('kondisi/deleteKondisi/{id}', [KondisiController::class, 'deletekondisi']);
 
-    Route::get('/me', function () {
-        return auth()->user();
-    });
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
