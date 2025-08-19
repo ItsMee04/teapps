@@ -21,7 +21,7 @@
                     <div class="page-btn import">
                         <a href="#" class="btn btn-added color" @click="openModalAdd()">
                             <i data-feather="plus" class="me-2"></i> Tambah
-                            kondisi
+                            Diskon
                         </a>
                     </div>
                 </div>
@@ -37,11 +37,12 @@
                         </div>
 
                         <div class="table-responsive product-list">
-                            <table class="table datanew text-nowrap table-hover" id="KondisiTable">
+                            <table class="table datanew text-nowrap table-hover" id="DiskonTable">
                                 <thead>
                                     <tr>
                                         <th>No.</th>
-                                        <th>Kondisi</th>
+                                        <th>Diskon / Promo</th>
+                                        <th>Nilai</th>
                                         <th>Status</th>
                                         <th class="no-sort">Action</th>
                                     </tr>
@@ -63,26 +64,30 @@
                             <div class="modal-header border-0 custom-modal-header bg-secondary">
                                 <div class="page-title">
                                     <h4 class="text-white">
-                                        <b>TAMBAH KONDISI</b>
+                                        <b>TAMBAH DISKON</b>
                                     </h4>
                                 </div>
-                                <button type="button" class="close text-white" @click="closeKondisi">
+                                <button type="button" class="close text-white" @click="closeDiskon">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
                             <div class="modal-body custom-modal-body">
-                                <form @submit.prevent="submitKondisi">
+                                <form @submit.prevent="submitDiskon">
                                     <div class="mb-3">
-                                        <label class="form-label">KONDISI</label>
-                                        <input type="text" v-model="form.kondisi" class="form-control" />
+                                        <label class="form-label">DISKON<span class="text-danger ms-1">*</span></label>
+                                        <input type="text" v-model="form.diskon" class="form-control" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">NILAI<span class="text-danger ms-1">*</span></label>
+                                        <input type="text" v-model="form.nilai" class="form-control" />
                                     </div>
                                     <div class="modal-footer-btn">
                                         <button type="button" class="btn btn-cancel btn-warning me-2"
-                                            @click="closeKondisi">
+                                            @click="closeDiskon">
                                             CANCEL
                                         </button>
                                         <button type="submit" class="btn btn-submit btn-secondary">
-                                            SIMPAN KONDISI
+                                            SIMPAN DISKON
                                         </button>
                                     </div>
                                 </form>
@@ -101,7 +106,7 @@
                             <div class="modal-header border-0 custom-modal-header bg-secondary">
                                 <div class="page-title">
                                     <h4 class="text-white">
-                                        <b>EDIT KONDISI</b>
+                                        <b>EDIT DISKON</b>
                                     </h4>
                                 </div>
                                 <button type="button" class="close text-white" @click="closeEdit">
@@ -109,10 +114,14 @@
                                 </button>
                             </div>
                             <div class="modal-body custom-modal-body">
-                                <form @submit.prevent="submitEditKondisi">
+                                <form @submit.prevent="submitEditDiskon">
                                     <div class="mb-3">
-                                        <label class="form-label">KONDISI</label>
-                                        <input type="text" v-model="form.kondisiEdit" class="form-control" />
+                                        <label class="form-label">DISKON<span class="text-danger ms-1">*</span></label>
+                                        <input type="text" v-model="form.editDiskon" class="form-control" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">NILAI<span class="text-danger ms-1">*</span></label>
+                                        <input type="text" v-model="form.editNilai" class="form-control" />
                                     </div>
                                     <div class="modal-footer-btn">
                                         <button type="button" class="btn btn-cancel btn-warning me-2"
@@ -120,7 +129,7 @@
                                             CANCEL
                                         </button>
                                         <button type="submit" class="btn btn-submit btn-secondary">
-                                            SIMPAN KONDISI
+                                            SIMPAN DISKON
                                         </button>
                                     </div>
                                 </form>
@@ -137,25 +146,31 @@ import { getCurrentInstance, ref, reactive, onMounted, onBeforeUnmount, nextTick
 import { initTooltips } from "../utilities/tooltip";
 import axios from "../utilities/axios.js";
 export default {
-    name: "Kondisi",
+    name: "Diskon",
     setup() {
         const { appContext } = getCurrentInstance();
         const toast = appContext.config.globalProperties.$toast;
 
-        const tableSelector = "#KondisiTable";
+        const tableSelector = "#DiskonTable";
         const tambahModal = ref(null);
         const editModal = ref(null);
 
-        const kondisiState = ref([]);
-        const form = reactive({ kondisi: "", kondisiEdit: ""});
+        const diskonState = ref([]);
+        const form = reactive({
+            diskon: "",
+            nilai: "",
+
+            editDiskon: "",
+            editNilai: "",
+        });
 
         let dataTableInstance = null;
 
-        //FETCH DATA KONDISI
-        const fetchKondisi = async () => {
+        //FETCH DATA DISKON
+        const fetchDiskon = async () => {
             try {
-                const response = await axios.get('/kondisi/getKondisi');
-                kondisiState.value = response.data.Data;
+                const response = await axios.get('/diskon/getDiskon');
+                diskonState.value = response.data.Data;
                 return true;
             } catch (error) {
                 toast("Gagal mengambil data", "error");
@@ -170,13 +185,19 @@ export default {
 
             if (!dataTableInstance) {
                 dataTableInstance = $(tableSelector).DataTable({
-                    data: kondisiState.value, // bind data awal
+                    data: diskonState.value, // bind data awal
                     columns: [
                         {
                             data: null,
                             render: (data, type, row, meta) => meta.row + 1 // nomor urut
                         },
-                        { data: 'kondisi' },
+                        { data: 'diskon' },
+                        {
+                            data: 'nilai',
+                            render: function (data, type, row) {
+                                return data + ' %';
+                            }
+                        },
                         {
                             data: 'status',
                             render: (data) => data
@@ -225,14 +246,14 @@ export default {
         };
 
         const refreshTableInternal = async () => {
-            const success = await fetchKondisi();
+            const success = await fetchDiskon();
             if (!success) return;
 
             await nextTick(); // tunggu DOM render
 
             dataTableInstance.clear();
-            kondisiState.value.forEach(kondisi => {
-                dataTableInstance.row.add(kondisi);
+            diskonState.value.forEach(diskon => {
+                dataTableInstance.row.add(diskon);
             });
             dataTableInstance.draw();
         };
@@ -243,7 +264,7 @@ export default {
             toast("Data berhasil direfresh!", "success");
         };
 
-        // FUNCTION TAMBAH KONDISI //
+        // FUNCTION TAMBAH ROLE //
         const openModalAdd = () => {
             const modalEl = tambahModal.value;
             if (modalEl) {
@@ -255,26 +276,37 @@ export default {
             }
         };
 
-        const closeKondisi = () => {
+        const closeDiskon = () => {
             const modalEl = tambahModal.value;
             if (modalEl) {
                 const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
                 modal.hide();
             }
-            form.kondisi = "";
+            form.diskon = "";
+            form.nilai = "";
         };
 
-        const submitKondisi = async () => {
-            if (!form.kondisi.trim()) {
-                toast("Kondisi wajib diisi!", "error");
+        const submitDiskon = async () => {
+            if (!form.diskon.trim()) {
+                toast("Diskon wajib diisi!", "error");
+                return;
+            }
+
+            if (!form.nilai.trim()) {
+                toast("Nilai wajib diisi!", "error");
+                return;
+            }
+
+            if (!/^\d+$/.test(form.nilai.trim())) {
+                toast("Nilai harus berupa angka bulat tanpa koma atau titik!", "error");
                 return;
             }
 
             try {
-                const response = await axios.post('/kondisi/storeKondisi', { kondisi: form.kondisi });
+                const response = await axios.post('/diskon/storeDiskon', { diskon: form.diskon, nilai: form.nilai });
 
-                toast(response.data.message || "Kondisi berhasil disimpan!", "success");
-                closeKondisi();
+                toast(response.data.message || "Diskon berhasil disimpan!", "success");
+                closeDiskon();
                 await refreshTableInternal();
 
             } catch (error) {
@@ -287,15 +319,15 @@ export default {
                     errorList += "</ul>";
                     toast(errorList, "error");
                 } else {
-                    toast(error.response?.data?.message || "Gagal menyimpan kondisi", "error");
+                    toast(error.response?.data?.message || "Gagal menyimpan diskon", "error");
                 }
             }
         };
 
-        //FUNCTION EDIT //
-        const openModalEdit = (kondisi) => {
-            form.id = kondisi.id; // simpan ID untuk update
-            form.kondisiEdit = kondisi.kondisi;
+        const openModalEdit = (diskon) => {
+            form.id = diskon.id; // simpan ID untuk update
+            form.editDiskon = diskon.diskon;
+            form.editNilai = diskon.nilai;
 
             nextTick(() => { // tunggu DOM update dulu
                 const modalEl = editModal.value;
@@ -312,10 +344,10 @@ export default {
             if (!btn) return;
 
             const id = btn.dataset.id;
-            const kondisi = kondisiState.value.find(j => j.id == id);
-            if (!kondisi) return;
+            const diskon = diskonState.value.find(j => j.id == id);
+            if (!diskon) return;
 
-            openModalEdit(kondisi);
+            openModalEdit(diskon);
         }
 
         // 👉 bikin function khusus untuk bind event
@@ -333,21 +365,33 @@ export default {
                 modal.hide();
             }
             form.id = null; // reset ID
-            form.kondisiEdit = "";
+            form.editDiskon = "";
+            form.editNilai = "";
         };
 
-        const submitEditKondisi = async () => {
-            if (!form.kondisiEdit.trim()) {
-                toast("Kondisi wajib diisi!", "error");
+        const submitEditDiskon = async () => {
+            if (!form.editDiskon.trim()) {
+                toast("Diskon wajib diisi!", "error");
+                return;
+            }
+
+            if (!form.editNilai.trim()) {
+                toast("Nilai wajib diisi!", "error");
+                return;
+            }
+
+            if (!/^\d+$/.test(form.editNilai.trim())) {
+                toast("Nilai harus berupa angka bulat tanpa koma atau titik!", "error");
                 return;
             }
 
             try {
-                const response = await axios.post(`/kondisi/updateKondisi/${form.id}`, {
-                    kondisi: form.kondisiEdit
+                const response = await axios.post(`/diskon/updateDiskon/${form.id}`, {
+                    diskon: form.editDiskon,
+                    nilai: form.editNilai
                 });
 
-                toast(response.data.message || "Kondisi berhasil diupdate!", "success");
+                toast(response.data.message || "Diskon berhasil diupdate!", "success");
                 closeEdit();
                 await refreshTableInternal();
 
@@ -361,7 +405,7 @@ export default {
                     errorList += "</ul>";
                     toast(errorList, "error");
                 } else {
-                    toast(error.response?.data?.message || "Gagal mengupdate kondisi", "error");
+                    toast(error.response?.data?.message || "Gagal mengupdate diskon", "error");
                 }
             }
         };
@@ -372,12 +416,12 @@ export default {
             if (!btn) return; // kalau bukan tombol delete, abaikan
 
             const id = btn.dataset.id;
-            const kondisi = kondisiState.value.find(j => j.id == id);
-            if (!kondisi) return;
+            const diskon = diskonState.value.find(j => j.id == id);
+            if (!diskon) return;
 
             Swal.fire({
                 title: "Are you sure?",
-                text: `Kondisi "${kondisi.kondisi}" akan dihapus!`,
+                text: `Diskon "${diskon.nilai} %" akan dihapus!`,
                 showCancelButton: !0,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
@@ -391,14 +435,14 @@ export default {
                 if (result.isConfirmed) {
                     try {
                         // ✅ API hapus
-                        await axios.delete(`/kondisi/deleteKondisi/${kondisi.id}`);
+                        await axios.delete(`/diskon/deleteDiskon/${diskon.id}`);
 
                         // refresh table setelah hapus
                         await refreshTableInternal();
 
-                        toast("Kondisi berhasil dihapus!", "success");
+                        toast("Diskon berhasil dihapus!", "success");
                     } catch (err) {
-                        toast("Kondisi gagal dihapus!", "error");
+                        toast("Diskon berhasil disimpan!", "error");
                     }
                 }
             });
@@ -413,10 +457,11 @@ export default {
         // FUNCTION DELETE //
 
         onMounted(async () => {
-            await fetchKondisi();
+            await fetchDiskon();
             await initTable();
             initTooltips();
             feather.replace();
+            // // Bind event untuk tombol edit
             bindEditClick();
             bindDeleteClick();
         });
@@ -426,19 +471,19 @@ export default {
         });
 
         return {
-            kondisiState,
+            diskonState,
             form,
-            tambahModal,
-            submitKondisi,
             refreshTable,
+            fetchDiskon,
+            tambahModal,
             openModalAdd,
-            closeKondisi,
+            closeDiskon,
+            submitDiskon,
             editModal,
             openModalEdit,
             closeEdit,
-            submitEditKondisi,
+            submitEditDiskon,
         };
     }
-
 }
 </script>

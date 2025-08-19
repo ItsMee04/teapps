@@ -381,7 +381,6 @@ export default {
             Swal.fire({
                 title: "Are you sure?",
                 text: `Role "${role.role}" akan dihapus!`,
-                type: "warning",
                 showCancelButton: !0,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",

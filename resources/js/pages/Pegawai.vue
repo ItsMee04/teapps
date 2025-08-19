@@ -625,7 +625,6 @@ export default {
             Swal.fire({
                 title: "Are you sure?",
                 text: `Pegawai "${pegawai.nama}" akan dihapus!`,
-                type: "warning",
                 showCancelButton: !0,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
