@@ -43,48 +43,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(user, index) in users" :key="role.id">
-                                        <td>{{ index + 1 }}</td>
-                                        <td>{{ user.pegawai.nama }}</td>
-                                        <td>{{ user.role.role }}</td>
-                                        <td>
-                                            <span v-if="!user.email || user.email === null"
-                                                class="badge bg-secondary fw-medium fs-10">
-                                                <b>Email Belum Di Input</b>
-                                            </span>
-                                            <span v-else>
-                                                {{ user.email }} <!-- Menampilkan email jika tidak null -->
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge" :class="user.status
-                                                ? 'bg-success'
-                                                : 'bg-danger'
-                                                ">
-                                                {{
-                                                    user.status
-                                                        ? "Aktif"
-                                                        : "Non-Aktif"
-                                                }}
-                                            </span>
-                                        </td>
-                                        <td class="action-table-data">
-                                            <div class="edit-delete-action">
-                                                <a class="me-2 edit-icon p-2" href="product-details.html"
-                                                    data-bs-toggle="tooltip" title="View Product">
-                                                    <i data-feather="eye" class="feather-eye"></i>
-                                                </a>
-                                                <a class="me-2 p-2" href="edit-product.html" data-bs-toggle="tooltip"
-                                                    title="Edit Product">
-                                                    <i data-feather="edit" class="feather-edit"></i>
-                                                </a>
-                                                <a class="confirm-text p-2" href="javascript:void(0);"
-                                                    data-bs-toggle="tooltip" title="Delete Product">
-                                                    <i data-feather="trash-2" class="feather-trash-2"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -93,7 +51,7 @@
             </div>
         </div>
 
-        <!-- <div class="modal fade" ref="tambahModal">
+        <div class="modal fade" ref="editModal">
             <div class="modal-dialog modal-dialog-centered custom-modal-two">
                 <div class="modal-content">
                     <div class="page-wrapper-new p-0">
@@ -101,38 +59,58 @@
                             <div class="modal-header border-0 custom-modal-header bg-secondary">
                                 <div class="page-title">
                                     <h4 class="text-white">
-                                        <b>TAMBAH ROLE</b>
+                                        <b>EDIT USERS</b>
                                     </h4>
                                 </div>
-                                <button type="button" class="close text-white" @click="closeRole">
+                                <button type="button" class="close text-white" @click="closeEditUsers">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
                             <div class="modal-body custom-modal-body">
-                                <form @submit.prevent="submitRole">
+                                <form @submit.prevent="submitEditUsers">
                                     <div class="mb-3">
-                                        <label class="form-label">ROLE</label>
-                                        <input type="text" v-model="form.role" class="form-control" />
+                                        <label class="form-label">ID<span class="text-danger ms-1">*</span></label>
+                                        <input type="text" v-model="form.editID" class="form-control" readonly />
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Category Slug</label>
-                                        <input type="text" class="form-control">
+                                        <label class="form-label">NAMA<span class="text-danger ms-1">*</span></label>
+                                        <input type="text" v-model="form.editNama" class="form-control" readonly />
                                     </div>
-                                    <div class="mb-0">
-                                        <div
-                                            class="status-toggle modal-status d-flex justify-content-between align-items-center">
-                                            <span class="status-label">Status</span>
-                                            <input type="checkbox" id="user2" class="check" checked>
-                                            <label for="user2" class="checktoggle"></label>
+                                    <div class="mb-3">
+                                        <label class="form-label">EMAIL<span class="text-danger ms-1">*</span></label>
+                                        <input type="text" v-model="form.editEmail" class="form-control" />
+                                        <div v-if="errors.editEmail" class="text-danger small">{{ errors.editEmail }}
                                         </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">PASSWORD<span
+                                                class="text-danger ms-1">*</span></label>
+                                        <div class="pass-group">
+                                            <input type="password" v-model="form.editPassword"
+                                                class="pass-input form-control">
+                                            <span class="fas toggle-password fa-eye-slash"></span>
+                                        </div>
+                                        <div v-if="errors.editPassword" class="text-danger small">{{ errors.editPassword
+                                        }}</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">ROLE<span class="text-danger ms-1">*</span></label>
+                                        <select class="select" id="roleEdit" v-model="form.editRoleSelect">
+                                            <option value="">Pilih Role</option>
+                                            <option v-for="role in roleList" :key="role.id" :value="role.id">
+                                                {{ role.role }}
+                                            </option>
+                                        </select>
+                                        <div v-if="errors.editRoleSelect" class="text-danger small">{{
+                                            errors.editRoleSelect }}</div>
                                     </div>
                                     <div class="modal-footer-btn">
                                         <button type="button" class="btn btn-cancel btn-warning me-2"
-                                            @click="closeRole">
+                                            @click="closeEditUsers">
                                             CANCEL
                                         </button>
                                         <button type="submit" class="btn btn-submit btn-secondary">
-                                            SIMPAN ROLE
+                                            SIMPAN USERS
                                         </button>
                                     </div>
                                 </form>
@@ -141,7 +119,7 @@
                     </div>
                 </div>
             </div>
-        </div> -->
+        </div>
     </div>
 </template>
 
@@ -153,115 +131,295 @@ import {
     onMounted,
     onBeforeUnmount,
     nextTick,
-    onUpdated,
 } from "vue";
-import { initDataTable } from "@/utilities/datatable.js";
 import { initTooltips } from "../utilities/tooltip";
+import { initSelect2 } from "../utilities/select.js";
 import axios from "../utilities/axios.js";
 
 export default {
     name: "Users",
-    props: {
-        users: {
-            type: Array,
-            default: () => [],
-        },
-    },
     setup() {
         const { appContext } = getCurrentInstance(); // ambil global properties
         const toast = appContext.config.globalProperties.$toast;
 
         const tableSelector = "#UserTable"; // selector tabel
-        const tambahModal = ref(null);
+        const editModal = ref(null);
+        const usersState = ref([]);
+        const roleList = ref([]);
         const form = reactive({
-            user: "",
+            editID: "",
+            editNama: "",
+            editEmail: "",
+            editPassword: "",
+            editRoleSelect: ""
         });
 
+        const errors = reactive({
+            editEmail: "",
+            editPassword: "",
+            editRoleSelect: ""
+        });
 
-        // Fetch data dari API
-        const fetchUsers = async () => {
+        let dataTableInstance = null;
+
+        const fetchRoles = async () => {
             try {
-                const response = await axios.get('/api/users/getUsers'); // ganti URL sesuai API
-                users.value = response.data;
-            } catch (error) {
-                toast("Gagal mengambil data", "error");
-                console.error(error);
+                const res = await axios.get("/role/getRole"); // ganti dengan endpoint kamu
+                roleList.value = res.data.Data; // misal [{id:1, jabatan:"Manager"}, ...]
+                await nextTick(); // tunggu DOM update option
+                initSelect2("#roleEdit", { placeholder: "Pilih Role", allowClear: true });
+
+                // Tambahkan event agar v-model sinkron dengan Select2
+                $('#roleEdit').on('change', function () {
+                    form.editRoleSelect = $(this).val();
+                });
+            } catch (err) {
+                console.error("Gagal load role:", err);
             }
         };
 
-        // Refresh tabel: ambil data baru + re-init DataTable
-        const refreshTable = async () => {
-            if (await fetchUsers()) {
-                // ambil data terbaru
-                // Hapus DataTable lama
-                const tableEl = document.querySelector(tableSelector);
-                if (tableEl && $.fn.DataTable.isDataTable(tableEl)) {
-                    $(tableEl).DataTable().destroy();
-                }
-                // Re-init DataTable dan tooltips
-                nextTick(() => {
-                    initDataTable(tableSelector);
+        //FETCH DATA USERS
+        const fetchUsers = async () => {
+            try {
+                const response = await axios.get('/users/getUsers');
+                usersState.value = response.data.Data;
+                return true;
+            } catch (error) {
+                toast("Gagal mengambil data", "error");
+                console.error(error);
+                return false;
+            }
+        };
+
+        // Init DataTable sekali saja
+        const initTable = async () => {
+            await nextTick(); // tunggu DOM render
+
+            if (!dataTableInstance) {
+                dataTableInstance = $(tableSelector).DataTable({
+                    data: usersState.value, // bind data awal
+                    columns: [
+                        {
+                            data: null,
+                            render: (data, type, row, meta) => meta.row + 1 // nomor urut
+                        },
+                        { data: 'pegawai.nama' },
+                        {
+                            data: "role.role",
+                            render: function (data, type, row) {
+                                if (!data || data === null) {
+                                    return `<span class="badge bg-secondary fw-medium fs-10"><b>Role Belum Di Pilih</b></span>`;
+                                } else {
+                                    return data; // Menampilkan email jika tidak null
+                                }
+                            }
+                        },
+                        {
+                            data: "email",
+                            render: function (data, type, row) {
+                                if (!data || data === null) {
+                                    return `<span class="badge bg-secondary fw-medium fs-10"><b>Email Belum Di Input</b></span>`;
+                                } else {
+                                    return data; // Menampilkan email jika tidak null
+                                }
+                            }
+                        },
+                        {
+                            data: 'status',
+                            render: (data) => data
+                                ? `<span class="badge bg-success">Aktif</span>`
+                                : `<span class="badge bg-danger">Non-Aktif</span>`
+                        },
+                        {
+                            data: null,
+                            orderable: false,
+                            className: "action-table-data",
+                            render: (data, type, row) => `
+                                <div class="edit-delete-action">
+                                    <a class="me-2 p-2 btn-edit" data-id="${row.id}" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="Edit">
+                                        <i data-feather="edit" class="feather-edit"></i>
+                                    </a>
+                                </div>
+                            `
+                        }
+                    ],
+                    responsive: true,   // ✅ aktifkan plugin responsive
+                    autoWidth: false,   // ✅ biar kolom tidak ngunci width
+                    bFilter: true,
+                    sDom: 'fBtlpi',
+                    ordering: true,
+                    language: {
+                        search: ' ',
+                        sLengthMenu: '_MENU_',
+                        searchPlaceholder: "Search",
+                        info: "_START_ - _END_ of _TOTAL_ items",
+                        paginate: { next: ' <i class="fa fa-angle-right"></i>', previous: '<i class="fa fa-angle-left"></i>' },
+                    },
+                    initComplete: () => {
+                        $('.dataTables_filter').appendTo('.search-input');
+                    }
+                });
+
+                // Feather icon & tooltip setelah draw
+                dataTableInstance.on('draw', () => {
                     feather.replace();
                     initTooltips();
                 });
-                // Tampilkan toast hanya jika berhasil mengambil data
-                toast("Berhasil merefresh data", "success");
-            };
+            }
         };
 
-        // const openModalAdd = () => {
-        //     // pakai Bootstrap global
-        //     const modalEl = tambahModal.value;
-        //     if (modalEl) {
-        //         const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
-        //             backdrop: 'static', // Modal tidak akan tertutup saat klik overlay
-        //             keyboard: false     // Modal tidak bisa ditutup dengan ESC
-        //         });
-        //         modal.show();
-        //     }
-        // };
+        const refreshTableInternal = async () => {
+            const success = await fetchUsers();
+            if (!success) return;
 
-        // const closeRole = () => {
-        //     const modalEl = tambahModal.value;
-        //     if (modalEl) {
-        //         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        //         modal.hide();
-        //     }
-        //     form.role = ""; // reset form
-        // };
+            await nextTick(); // tunggu DOM render
 
-        // const submitRole = () => {
-        //     if (!form.role.trim()) {
-        //         toast("Role wajib diisi!", "error");
-        //         return;
-        //     }
+            dataTableInstance.clear();
+            usersState.value.forEach(users => {
+                dataTableInstance.row.add(users);
+            });
+            dataTableInstance.draw();
+        };
 
-        //     console.log("Submit Role:", form.role);
-        //     closeRole();
-        //     toast("Role berhasil disimpan!", "success");
-        // };
+        // Fungsi yang dipanggil saat klik tombol refresh
+        const refreshTable = async () => {
+            await refreshTableInternal();
+            toast("Data berhasil direfresh!", "success");
+        };
+
+        const openModalEdit = (users) => {
+            form.editID = users.id;
+
+            // Ambil dari relasi pegawai
+            form.editNama = users.pegawai ? users.pegawai.nama : "";
+
+            // Email bisa null
+            form.editEmail = users.email || "";
+
+            // Password selalu kosong kalau edit
+            form.editPassword = "";
+
+            // Role bisa null
+            form.editRoleSelect = users.role ? users.role.id : null;
+
+            const modalEl = editModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                modal.show();
+            }
+
+            // Sinkronkan select2 dengan v-model
+            nextTick(() => {
+                initSelect2("#roleEdit", { placeholder: "Pilih Role", allowClear: true });
+                $('#roleEdit').val(form.editRoleSelect).trigger('change');
+                $('#jabatanroleEditEdit').on('change', function () {
+                    form.editRoleSelect = $(this).val();
+                });
+            });
+        };
+
+        function handleEditClick(e) {
+            const btn = e.target.closest(".btn-edit");
+            if (!btn) return;
+            const id = btn.dataset.id;
+            const users = usersState.value.find(p => p.id == id);
+            if (!users) return;
+            openModalEdit(users);
+        }
+
+        function bindEditClick() {
+            const tableEl = document.querySelector(tableSelector);
+            if (tableEl) {
+                tableEl.addEventListener("click", handleEditClick);
+            }
+        }
+
+        const closeEditUsers = () => {
+            const modalEl = editModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+            }
+            form.editID = null;
+            form.editNama = "";
+            form.editEmail = "";
+            form.editPassword = "";
+            form.editRoleSelect = "";
+        };
+
+        // 🚀 SUBMIT EDIT USERS
+        const submitEditUsers = async () => {
+            errors.editEmail = "";
+            errors.editPassword = "";
+            errors.editRoleSelect = "";
+
+            try {
+                // request ke backend untuk update user
+                const response = await axios.post(`/users/updateUsers/${form.editID}`, {
+                    nama: form.editNama,          // dari relasi pegawai
+                    email: form.editEmail,
+                    password: form.editPassword,  // kosong = tidak update password
+                    role: form.editRoleSelect
+                });
+
+                if (response.data.success) {
+                    toast("User berhasil diperbarui!", "success");
+
+                    // Refresh tabel agar data terbaru muncul
+                    await refreshTableInternal();
+
+                    // Tutup modal edit
+                    closeEditUsers();
+                } else {
+                    toast(response.data.message || "Gagal update user", "error");
+                }
+            } catch (error) {
+                // kalau backend kirim error validasi (422 Laravel biasanya)
+                if (error.response && error.response.status === 422) {
+                    const validationErrors = error.response.data.errors;
+                    if (validationErrors.email) {
+                        errors.editEmail = validationErrors.email[0];
+                    }
+                    if (validationErrors.password) {
+                        errors.editPassword = validationErrors.password[0];
+                    }
+                    if (validationErrors.role_id) {
+                        errors.editRoleSelect = validationErrors.role_id[0];
+                    }
+                    toast("Periksa kembali inputan Anda!", "error");
+                } else {
+                    console.error(error);
+                    toast("Terjadi kesalahan saat update user", "error");
+                }
+            }
+        };
 
         onMounted(async () => {
             await fetchUsers();
-            nextTick(() => {
-                feather.replace();
-                initDataTable(tableSelector); // selector tabel
-                initTooltips();
-            });
-        });
-        // Re-init DataTable & Feather jika halaman diperbarui (SPA)
-        onUpdated(() => {
+            await initTable();
+            fetchRoles();
+            bindEditClick();
             feather.replace();
-            initDataTable(tableSelector);
-            initTooltips(); // aktifkan tooltip
+            initTooltips();
         });
 
         onBeforeUnmount(() => {
-            feather.replace();
-            initTooltips(); // aktifkan tooltip
+            if (dataTableInstance) dataTableInstance.destroy();
         });
 
-        return { tambahModal, refreshTable, form };
+        return {
+            editModal,
+            closeEditUsers,
+            submitEditUsers,
+            roleList,
+            form,
+            errors,
+            usersState,
+            refreshTable
+        };
     },
 };
 </script>

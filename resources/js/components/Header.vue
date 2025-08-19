@@ -229,13 +229,18 @@ export default {
 
         const fetchUser = async () => {
             try {
-                const response = await axios.get('/users/getUsers'); // Ganti dengan endpoint yang sesuai
-                if (response.data.success) {
-                    const userData = response.data.Data[0];
-                    userName.value = userData.pegawai.nama; // Mengambil nama pengguna
-                    roleName.value = userData.role.role; // Mengambil nama peran
-                    // Ambil foto user, fallback jika tidak ada
-                    userPhoto.value = userData.pegawai.image_pegawai
+                const response = await axios.get('/me'); // endpoint user login
+                if (response.data) {
+                    const userData = response.data; // langsung objek, bukan array
+
+                    // ambil nama
+                    userName.value = userData.pegawai?.nama || "User";
+
+                    // ambil role
+                    roleName.value = userData.role?.role || "No Role";
+
+                    // ambil foto (kalau null fallback default)
+                    userPhoto.value = userData.pegawai?.image_pegawai
                         ? `/storage/avatar/${userData.pegawai.image_pegawai}?t=${Date.now()}`
                         : '/defaultavatarman.png';
                 }
@@ -243,6 +248,7 @@ export default {
                 console.error('Error fetching user:', error);
             }
         };
+
 
         const handleLogout = async () => {
             try {

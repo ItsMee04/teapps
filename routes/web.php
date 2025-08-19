@@ -62,6 +62,12 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('Users');
     })->name('users');
     Route::get('users/getUsers', [UserController::class, 'getUsers']);
+    Route::get('users/getUsersByID/{id}', [UserController::class, 'getUsersByID']);
+    Route::post('users/updateUsers/{id}', [UserController::class, 'updateUsers']);
 
+
+    Route::get('/me', function () {
+        return auth()->user();
+    });
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

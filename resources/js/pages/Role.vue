@@ -120,7 +120,7 @@
                                             CANCEL
                                         </button>
                                         <button type="submit" class="btn btn-submit btn-secondary">
-                                            SIMPAN JABATAN
+                                            SIMPAN ROLE
                                         </button>
                                     </div>
                                 </form>
