@@ -81,7 +81,8 @@ class PegawaiController extends Controller
             'imagePegawai'  => 'mimes:png,jpg,jpeg',
         ], $messages);
 
-        $pegawai = Pegawai::where('nip', $id)->first();
+        // Cari berdasarkan id, bukan nip
+        $pegawai = Pegawai::find($id);
 
         if ($request->file('imagePegawai')) {
             $pathavatar     = 'storage/avatar/' . $pegawai->image_pegawai;

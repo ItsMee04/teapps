@@ -93,38 +93,6 @@
             </div>
         </div>
 
-        <div class="modal fade" ref="viewModal">
-            <div class="modal-dialog modal-dialog-centered custom-modal-two">
-                <div class="modal-content">
-                    <div class="page-wrapper-new p-0">
-                        <div class="content">
-                            <div class="modal-header border-0 custom-modal-header bg-secondary">
-                                <div class="page-title">
-                                    <h4 class="text-white">
-                                        <b>VIEW JABATAN</b>
-                                    </h4>
-                                </div>
-                                <button type="button" class="close text-white" @click="closeView">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body custom-modal-body">
-                                <div class="mb-3">
-                                    <label class="form-label">JABATAN</label>
-                                    <input type="text" v-model="form.jabatanView" class="form-control" readonly />
-                                </div>
-                                <div class="modal-footer-btn">
-                                    <button type="button" class="btn btn-cancel btn-warning me-2" @click="closeView">
-                                        CANCEL
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="modal fade" ref="editModal">
             <div class="modal-dialog modal-dialog-centered custom-modal-two">
                 <div class="modal-content">
@@ -178,7 +146,6 @@ export default {
 
         const tableSelector = "#JabatanTable";
         const tambahModal = ref(null);
-        const viewModal = ref(null);
         const editModal = ref(null);
 
         const jabatansState = ref([]);
@@ -224,9 +191,6 @@ export default {
                             className: "action-table-data",
                             render: (data, type, row) => `
                                 <div class="edit-delete-action">
-                                    <a class="btn-view me-2 edit-icon p-2" data-bs-toggle="tooltip" title="View" data-id="${row.id}">
-                                        <i data-feather="eye"></i>
-                                    </a>
                                     <a class="btn-edit me-2 p-2" data-bs-toggle="tooltip" title="Edit" data-id="${row.id}">
                                         <i data-feather="edit"></i>
                                     </a>
@@ -330,48 +294,6 @@ export default {
             }
         };
         // FUNCTION TAMBAH JABATAN //
-
-        // FUNCTION VIEW //
-        const openModalView = (jabatan) => {
-            form.jabatanView = jabatan.jabatan;
-
-            nextTick(() => { // tunggu DOM update dulu
-                const modalEl = viewModal.value;
-                if (modalEl) {
-                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: "static", keyboard: false });
-                    modal.show();
-                }
-            });
-        };
-
-        // handler klik tombol view
-        function handleViewClick(e) {
-            const btn = e.target.closest(".btn-view");
-            if (!btn) return;
-
-            const id = btn.dataset.id;
-            const jabatan = jabatansState.value.find(j => j.id == id);
-            if (!jabatan) return;
-
-            openModalView(jabatan);
-        }
-
-        // 👉 bikin function khusus untuk bind event
-        function bindViewClick() {
-            const tableEl = document.querySelector(tableSelector);
-            if (tableEl) {
-                tableEl.addEventListener("click", handleViewClick);
-            }
-        }
-
-        const closeView = () => {
-            const modalEl = viewModal.value;
-            if (modalEl) {
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                modal.hide();
-            }
-        };
-        // FUNCTION VIEW //
 
         //FUNCTION EDIT //
         const openModalEdit = (jabatan) => {
@@ -499,7 +421,6 @@ export default {
             await initTable();
             feather.replace();
             initTooltips();
-            bindViewClick();
             bindEditClick();
             bindDeleteClick();
         });
@@ -510,12 +431,10 @@ export default {
 
         return {
             tambahModal,
-            viewModal,
             editModal,
             form,
             openModalAdd,
             closeJabatan,
-            closeView,
             closeEdit,
             submitJabatan,
             submitEditJabatan,

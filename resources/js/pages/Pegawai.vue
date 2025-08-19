@@ -1,4 +1,4 @@
-<template lang="">
+<template>
     <div>
         <div class="page-wrapper">
             <div class="content">
@@ -32,10 +32,7 @@
                         <div class="table-top">
                             <div class="search-set">
                                 <div class="search-input">
-                                    <a
-                                        href="javascript:void(0);"
-                                        class="btn btn-searchset"
-                                    ></a>
+                                    <a href="javascript:void(0);" class="btn btn-searchset"></a>
                                 </div>
                             </div>
                         </div>
@@ -80,52 +77,150 @@
                                     <div class="row">
                                         <div class="mb-3 col-md-6">
                                             <label class="form-label">NIP<span class="text-danger ms-1">*</span></label>
-                                            <input type="text" v-model="form.nip" class="form-control"/>
+                                            <input type="text" v-model="form.nip" class="form-control" />
                                             <div v-if="errors.nip" class="text-danger small">{{ errors.nip }}</div>
                                         </div>
                                         <div class="mb-3 col-md-6">
-                                            <label class="form-label">NAMA<span class="text-danger ms-1">*</span></label>
-                                            <input type="text" v-model="form.nama" class="form-control"/>
+                                            <label class="form-label">NAMA<span
+                                                    class="text-danger ms-1">*</span></label>
+                                            <input type="text" v-model="form.nama" class="form-control" />
                                             <div v-if="errors.nama" class="text-danger small">{{ errors.nama }}</div>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">ALAMAT<span class="text-danger ms-1">*</span></label>
-                                        <textarea v-model="form.alamat" class="form-control" cols="30" rows="4"></textarea>
+                                        <textarea v-model="form.alamat" class="form-control" cols="30"
+                                            rows="4"></textarea>
                                         <div v-if="errors.alamat" class="text-danger small">{{ errors.alamat }}</div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">KONTAK<span class="text-danger ms-1">*</span></label>
-                                        <input type="text" v-model="form.kontak" class="form-control"/>
+                                        <input type="text" v-model="form.kontak" class="form-control" />
                                         <div v-if="errors.kontak" class="text-danger small">{{ errors.kontak }}</div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">JABATAN<span class="text-danger ms-1">*</span></label>
                                         <select class="select" id="jabatan" v-model="form.jabatanSelect">
                                             <option value="">Pilih Jabatan</option>
-                                            <option v-for="jabatan in jabatanList" :key="jabatan.id" :value="jabatan.id">
+                                            <option v-for="jabatan in jabatanList" :key="jabatan.id"
+                                                :value="jabatan.id">
                                                 {{ jabatan.jabatan }}
                                             </option>
                                         </select>
-                                        <div v-if="errors.jabatanSelect" class="text-danger small">{{ errors.jabatanSelect }}</div>
+                                        <div v-if="errors.jabatanSelect" class="text-danger small">{{
+                                            errors.jabatanSelect }}</div>
                                     </div>
                                     <div class="add-choosen">
                                         <div class="mb-3">
                                             <label class="form-label">AVATAR</label>
                                             <div class="image-upload">
-                                                <input type="file" name="imagePegawai" id="imagePegawai" @change="handleImagePegawaiChange"/>
+                                                <input type="file" name="imagePegawai" id="imagePegawai"
+                                                    @change="handleImagePegawaiChange" />
                                                 <div class="image-uploads">
                                                     <i data-feather="upload" class="plus-down-add me-0"></i>
                                                     <h4>UPLOAD AVATAR</h4>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="phone-img" style="width: 150px; height: 150px; overflow: hidden; border-radius: 8px;">
-                                            <div id="imagePegawaiPreview" alt="previewImage" style="width: 150px; height: 150px; display: block; overflow: hidden;"></div>
+                                        <div class="phone-img"
+                                            style="width: 150px; height: 150px; overflow: hidden; border-radius: 8px;">
+                                            <div id="imagePegawaiPreview" alt="previewImage"
+                                                style="width: 150px; height: 150px; display: block; overflow: hidden;">
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer-btn">
-                                        <button type="button" class="btn btn-cancel btn-warning me-2" @click="closePegawai">
+                                        <button type="button" class="btn btn-cancel btn-warning me-2"
+                                            @click="closePegawai">
+                                            CANCEL
+                                        </button>
+                                        <button type="submit" class="btn btn-submit btn-secondary">
+                                            SIMPAN PEGAWAI
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" ref="editModal">
+            <div class="modal-dialog modal-dialog-centered custom-modal-two">
+                <div class="modal-content">
+                    <div class="page-wrapper-new p-0">
+                        <div class="content">
+                            <div class="modal-header border-0 custom-modal-header bg-secondary">
+                                <div class="page-title">
+                                    <h4 class="text-white">
+                                        <b>EDIT PEGAWAI</b>
+                                    </h4>
+                                </div>
+                                <button type="button" class="close text-white" @click="closeEditPegawai">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body custom-modal-body">
+                                <form @submit.prevent="submitEditPegawai">
+                                    <div class="row">
+                                        <div class="mb-3 col-md-6">
+                                            <label class="form-label">NIP<span class="text-danger ms-1">*</span></label>
+                                            <input type="text" v-model="form.editNip" class="form-control" />
+                                            <div v-if="errors.nip" class="text-danger small">{{ errors.nip }}</div>
+                                        </div>
+                                        <div class="mb-3 col-md-6">
+                                            <label class="form-label">NAMA<span
+                                                    class="text-danger ms-1">*</span></label>
+                                            <input type="text" v-model="form.editNama" class="form-control" />
+                                            <div v-if="errors.nama" class="text-danger small">{{ errors.nama }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">ALAMAT<span class="text-danger ms-1">*</span></label>
+                                        <textarea v-model="form.editAlamat" class="form-control" cols="30"
+                                            rows="4"></textarea>
+                                        <div v-if="errors.alamat" class="text-danger small">{{ errors.alamat }}</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">KONTAK<span class="text-danger ms-1">*</span></label>
+                                        <input type="text" v-model="form.editKontak" class="form-control" />
+                                        <div v-if="errors.kontak" class="text-danger small">{{ errors.kontak }}</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">JABATAN<span class="text-danger ms-1">*</span></label>
+                                        <select class="select" id="jabatanEdit" v-model="form.editJabatanSelect">
+                                            <option value="">Pilih Jabatan</option>
+                                            <option v-for="jabatan in jabatanList" :key="jabatan.id"
+                                                :value="jabatan.id">
+                                                {{ jabatan.jabatan }}
+                                            </option>
+                                        </select>
+                                        <div v-if="errors.jabatanSelect" class="text-danger small">{{
+                                            errors.jabatanSelect }}</div>
+                                    </div>
+                                    <div class="add-choosen">
+                                        <div class="mb-3">
+                                            <label class="form-label">AVATAR</label>
+                                            <div class="image-upload">
+                                                <input type="file" name="imagePegawai" id="imagePegawai"
+                                                    @change="handleEditImagePegawaiChange" />
+                                                <div class="image-uploads">
+                                                    <i data-feather="upload" class="plus-down-add me-0"></i>
+                                                    <h4>UPLOAD AVATAR</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="phone-img"
+                                            style="width: 150px; height: 150px; overflow: hidden; border-radius: 8px;">
+                                            <div id="imagePegawaiPreviewEdit" alt="previewImage"
+                                                style="width: 150px; height: 150px; display: block; overflow: hidden;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer-btn">
+                                        <button type="button" class="btn btn-cancel btn-warning me-2"
+                                            @click="closeEditPegawai">
                                             CANCEL
                                         </button>
                                         <button type="submit" class="btn btn-submit btn-secondary">
@@ -156,6 +251,7 @@ export default {
 
         const tableSelector = "#PegawaiTable";
         const tambahModal = ref(null);
+        const editModal = ref(null);
 
         const pegawaiState = ref([]);
         const jabatanList = ref([]);
@@ -166,6 +262,14 @@ export default {
             kontak: "",
             jabatanSelect: "",
             imagePegawai: null,
+
+            id: null,
+            editNip: "",
+            editNama: "",
+            editAlamat: "",
+            editKontak: "",
+            editJabatanSelect: "",
+            editImagePegawai: null,
         });
 
         const errors = reactive({
@@ -235,9 +339,6 @@ export default {
                             className: "action-table-data",
                             render: (data, type, row) => `
                                 <div class="edit-delete-action">
-                                    <a class="btn-view me-2 edit-icon p-2" data-bs-toggle="tooltip" title="View" data-id="${row.id}">
-                                        <i data-feather="eye"></i>
-                                    </a>
                                     <a class="btn-edit me-2 p-2" data-bs-toggle="tooltip" title="Edit" data-id="${row.id}">
                                         <i data-feather="edit"></i>
                                     </a>
@@ -389,22 +490,142 @@ export default {
             }
         };
 
+        const openModalEdit = (pegawai) => {
+            form.id = pegawai.id;
+            form.editNip = pegawai.nip;
+            form.editNama = pegawai.nama;
+            form.editAlamat = pegawai.alamat;
+            form.editKontak = pegawai.kontak;
+            form.editJabatanSelect = pegawai.jabatan.id;
+            form.editImagePegawai = null;
+
+            const modalEl = editModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                modal.show();
+            }
+
+            // Sinkronkan select2 dengan v-model
+            nextTick(() => {
+                initSelect2("#jabatanEdit", { placeholder: "Pilih Jabatan", allowClear: true });
+                $('#jabatanEdit').val(form.editJabatanSelect).trigger('change');
+                $('#jabatanEdit').on('change', function () {
+                    form.editJabatanSelect = $(this).val();
+                });
+                // Tampilkan gambar lama di preview
+                const previewDiv = document.getElementById('imagePegawaiPreviewEdit');
+                if (previewDiv) {
+                    let timestamp = new Date().getTime();
+                    const imageUrl = pegawai.image_pegawai
+                        ? `/storage/avatar/${pegawai.image_pegawai}?t=${timestamp}`
+                        : "";
+                    previewDiv.innerHTML = imageUrl
+                        ? `<img src="${imageUrl}" style="width:100%;height:100%;object-fit:cover;" />`
+                        : "";
+                }
+            });
+        };
+
+        function handleEditClick(e) {
+            const btn = e.target.closest(".btn-edit");
+            if (!btn) return;
+            const id = btn.dataset.id;
+            const pegawai = pegawaiState.value.find(p => p.id == id);
+            if (!pegawai) return;
+            openModalEdit(pegawai);
+        }
+
+        function bindEditClick() {
+            const tableEl = document.querySelector(tableSelector);
+            if (tableEl) {
+                tableEl.addEventListener("click", handleEditClick);
+            }
+        }
+
+        function handleEditImagePegawaiChange(event) {
+            const file = event.target.files[0];
+            form.editImagePegawai = file || null;
+
+            // Update preview
+            const previewDiv = document.getElementById('imagePegawaiPreviewEdit');
+            if (previewDiv && file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewDiv.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;" />`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        const submitEditPegawai = async () => {
+            // Validasi sesuai kebutuhan
+            if (!form.editNip.trim() || !form.editNama.trim() || !form.editAlamat.trim() || !form.editKontak.trim() || !form.editJabatanSelect) {
+                toast("Mohon lengkapi data edit!", "error");
+                return;
+            }
+            try {
+                const fd = new FormData();
+                fd.append('id', form.id);
+                fd.append('nip', form.editNip);
+                fd.append('nama', form.editNama);
+                fd.append('alamat', form.editAlamat);
+                fd.append('kontak', form.editKontak);
+                fd.append('jabatan', parseInt(form.editJabatanSelect));
+                if (form.editImagePegawai) fd.append('imagePegawai', form.editImagePegawai);
+
+                // KODE YANG BENAR UNTUK ENDPOINT DENGAN PARAMETER ID
+                const response = await axios.post(`/pegawai/updatePegawai/${form.id}`, fd, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+
+                toast(response.data.message || "Pegawai berhasil diupdate!", "success");
+                closeEditPegawai();
+                await refreshTableInternal();
+
+            } catch (error) {
+                toast(error.response?.data?.message || "Gagal update pegawai", "error");
+            }
+        };
+
+        const closeEditPegawai = () => {
+            const modalEl = editModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+            }
+            form.id = null;
+            form.editNip = "";
+            form.editNama = "";
+            form.editAlamat = "";
+            form.editKontak = "";
+            form.editJabatanSelect = "";
+            form.editImagePegawai = null;
+        };
+
         onMounted(async () => {
             await fetchPegawais();
             await initTable();
             feather.replace();
             initTooltips();
             fetchJabatan();
-
+            bindEditClick();
             imageUploader = uploadImage("imagePegawai", "imagePegawaiPreview");
         });
 
         return {
             tambahModal,
+            editModal,
             openModalAdd,
+            openModalEdit,
             handleImagePegawaiChange,
             submitPegawai,
             closePegawai,
+            handleEditImagePegawaiChange,
+            submitEditPegawai,
+            closeEditPegawai,
             refreshTable,
             form,
             jabatanList,
