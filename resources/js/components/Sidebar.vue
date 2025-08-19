@@ -58,8 +58,8 @@
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link href="/jenis-produk"
-                                            :class="{ 'active': currentPath === '/jenis-produk' }"> Jenis Produk</Link>
+                                        <Link href="/jenisproduk"
+                                            :class="{ 'active': currentPath === '/jenisproduk' }"> Jenis Produk</Link>
                                     </li>
                                     <li>
                                         <Link href="/produk" :class="{ 'active': currentPath === '/produk' }"> Produk
@@ -150,7 +150,7 @@ export default {
             if (!path) return false;
             return path.includes('/kondisi') ||
                 path.includes('/diskon') ||
-                path.includes('/jenis-produk') ||
+                path.includes('/jenisproduk') ||
                 path.includes('/produk') ||
                 path.includes('/nampan') ||
                 path.includes('/print-barcode') ||

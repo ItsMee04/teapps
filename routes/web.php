@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Produk\DiskonController;
 use App\Http\Controllers\Produk\KondisiController;
+use App\Http\Controllers\Produk\JenisProdukController;
 use App\Http\Controllers\UserManagement\RoleController;
 use App\Http\Controllers\UserManagement\UserController;
 use App\Http\Controllers\UserManagement\JabatanController;
@@ -84,10 +85,19 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('Diskon');
     })->name('diskon');
     Route::get('diskon/getDiskon', [DiskonController::class, 'getDiskon']);
-        Route::post('diskon/storeDiskon', [DiskonController::class, 'storeDiskon']);
-        Route::get('diskon/getDiskonByID/{id}', [DiskonController::class, 'getDiskonByID']);
-        Route::post('diskon/updateDiskon/{id}', [DiskonController::class, 'updateDiskon']);
-        Route::delete('diskon/deleteDiskon/{id}', [DiskonController::class, 'deleteDiskon']);
+    Route::post('diskon/storeDiskon', [DiskonController::class, 'storeDiskon']);
+    Route::get('diskon/getDiskonByID/{id}', [DiskonController::class, 'getDiskonByID']);
+    Route::post('diskon/updateDiskon/{id}', [DiskonController::class, 'updateDiskon']);
+    Route::delete('diskon/deleteDiskon/{id}', [DiskonController::class, 'deleteDiskon']);
+
+    Route::get('/jenisproduk', function () {
+        return Inertia::render('JenisProduk');
+    })->name('jenisproduk');
+    Route::get('jenisproduk/getJenisProduk', [JenisProdukController::class, 'getJenisProduk']);
+    Route::post('jenisproduk/storeJenisProduk', [JenisProdukController::class, 'storeJenisProduk']);
+    Route::get('jenisproduk/getJenisProdukByID/{id}', [JenisProdukController::class, 'getJenisProdukByID']);
+    Route::post('jenisproduk/updateJenisProduk/{id}', [JenisProdukController::class, 'updateJenisProduk']);
+    Route::delete('jenisproduk/deleteJenisProduk/{id}', [JenisProdukController::class, 'deleteJenisProduk']);
 
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
