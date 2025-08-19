@@ -393,7 +393,7 @@ export default {
             toast("Data berhasil direfresh!", "success");
         };
 
-        // FUNCTION TAMBAH ROLE //
+        // FUNCTION TAMBAH PEGAWAI //
         const openModalAdd = () => {
             const modalEl = tambahModal.value;
             if (modalEl) {
@@ -516,16 +516,24 @@ export default {
                     form.editJabatanSelect = $(this).val();
                 });
                 // Tampilkan gambar lama di preview
+                // Tampilkan gambar lama di preview
                 const previewDiv = document.getElementById('imagePegawaiPreviewEdit');
                 if (previewDiv) {
                     let timestamp = new Date().getTime();
-                    const imageUrl = pegawai.image_pegawai
-                        ? `/storage/avatar/${pegawai.image_pegawai}?t=${timestamp}`
-                        : "";
-                    previewDiv.innerHTML = imageUrl
-                        ? `<img src="${imageUrl}" style="width:100%;height:100%;object-fit:cover;" />`
-                        : "";
+                    let imageUrl = "";
+
+                    if (pegawai.image_pegawai) {
+                        imageUrl = `/storage/avatar/${pegawai.image_pegawai}?t=${timestamp}`;
+                    } else {
+                        // 👇 fallback ke default avatar
+                        imageUrl = "defaultavatarman.png";
+                    }
+
+                    previewDiv.innerHTML = `
+                        <img src="${imageUrl}" style="width:100%;height:100%;object-fit:cover;" />
+                    `;
                 }
+
             });
         };
 
@@ -605,6 +613,53 @@ export default {
             form.editImagePegawai = null;
         };
 
+        // FUNCTION DELETE //
+        function handleDeleteClick(e) {
+            const btn = e.target.closest(".btn-delete");
+            if (!btn) return; // kalau bukan tombol delete, abaikan
+
+            const id = btn.dataset.id;
+            const pegawai = pegawaiState.value.find(j => j.id == id);
+            if (!pegawai) return;
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: `Pegawai "${pegawai.nama}" akan dihapus!`,
+                type: "warning",
+                showCancelButton: !0,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary",
+                    cancelButton: "btn btn-danger ml-1",
+                },
+                buttonsStyling: !1,
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        // ✅ API hapus
+                        await axios.delete(`/pegawai/deletePegawai/${pegawai.id}`);
+
+                        // refresh table setelah hapus
+                        await refreshTableInternal();
+
+                        toast("Pegawai berhasil dihapus!", "success");
+                    } catch (err) {
+                        toast("Pegawai berhasil disimpan!", "error");
+                    }
+                }
+            });
+        }
+
+        function bindDeleteClick() {
+            const tableEl = document.querySelector(tableSelector);
+            if (tableEl) {
+                tableEl.addEventListener("click", handleDeleteClick);
+            }
+        }
+        // FUNCTION DELETE //
+
         onMounted(async () => {
             await fetchPegawais();
             await initTable();
@@ -612,6 +667,7 @@ export default {
             initTooltips();
             fetchJabatan();
             bindEditClick();
+            bindDeleteClick();
             imageUploader = uploadImage("imagePegawai", "imagePegawaiPreview");
         });
 

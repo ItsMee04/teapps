@@ -166,22 +166,22 @@
                 <a href="javascript:void(0);" class="dropdown-toggle nav-link userset" data-bs-toggle="dropdown">
                     <span class="user-info">
                         <span class="user-letter">
-                            <img src="/resources/assets/img/profiles/avator1.jpg" alt="" class="img-fluid">
+                            <img :src="userPhoto" alt="Foto User" class="img-fluid">
                         </span>
                         <span class="user-detail">
-                            <span class="user-name">{{userName}}</span>
-                            <span class="user-role">{{roleName}}</span>
+                            <span class="user-name">{{ userName }}</span>
+                            <span class="user-role">{{ roleName }}</span>
                         </span>
                     </span>
                 </a>
                 <div class="dropdown-menu menu-drop-user">
                     <div class="profilename">
                         <div class="profileset">
-                            <span class="user-img"><img src="/resources/assets/img/profiles/avator1.jpg" alt="">
+                            <span class="user-img"><img :src="userPhoto" alt="Foto User">
                                 <span class="status online"></span></span>
                             <div class="profilesets">
-                                <h6>{{userName}}</h6>
-                                <h5>{{roleName}}</h5>
+                                <h6>{{ userName }}</h6>
+                                <h5>{{ roleName }}</h5>
                             </div>
                         </div>
                         <hr class="m-0">
@@ -190,7 +190,7 @@
                         <a class="dropdown-item" href="general-settings.html"><i class="me-2"
                                 data-feather="settings"></i>Settings</a>
                         <hr class="m-0">
-                        <a class="dropdown-item logout pb-0" href="signin.html"><img
+                        <a class="dropdown-item logout pb-0" @click.prevent="handleLogout"><img
                                 src="/resources/assets/img/icons/log-out.svg" class="me-2" alt="img">Logout</a>
                     </div>
                 </div>
@@ -205,7 +205,7 @@
             <div class="dropdown-menu dropdown-menu-right">
                 <a class="dropdown-item" href="profile.html">My Profile</a>
                 <a class="dropdown-item" href="general-settings.html">Settings</a>
-                <a class="dropdown-item" href="signin.html">Logout</a>
+                <a class="dropdown-item" @click.prevent="handleLogout">Logout</a>
             </div>
         </div>
         <!-- /Mobile Menu -->
@@ -223,6 +223,7 @@ export default {
     setup() {
         const userName = ref(''); // Menyimpan nama pengguna
         const roleName = ref(''); // Menyimpan nama peran pengguna
+        const userPhoto = ref(''); // Menyimpan foto pengguna
         const dateTime = ref('');
         let intervalId = null;
 
@@ -230,11 +231,25 @@ export default {
             try {
                 const response = await axios.get('/users/getUsers'); // Ganti dengan endpoint yang sesuai
                 if (response.data.success) {
-                    userName.value = response.data.Data[0].pegawai.nama; // Mengambil nama pengguna
-                    roleName.value = response.data.Data[0].role.role; // Mengambil nama pengguna
+                    const userData = response.data.Data[0];
+                    userName.value = userData.pegawai.nama; // Mengambil nama pengguna
+                    roleName.value = userData.role.role; // Mengambil nama peran
+                    // Ambil foto user, fallback jika tidak ada
+                    userPhoto.value = userData.pegawai.image_pegawai
+                        ? `/storage/avatar/${userData.pegawai.image_pegawai}?t=${Date.now()}`
+                        : '/defaultavatarman.png';
                 }
             } catch (error) {
                 console.error('Error fetching user:', error);
+            }
+        };
+
+        const handleLogout = async () => {
+            try {
+                await axios.post('/logout');
+                window.location.href = '/'; // redirect setelah logout
+            } catch (error) {
+                console.error('Logout failed:', error);
             }
         };
 
@@ -270,7 +285,7 @@ export default {
             clearInterval(intervalId);
         });
 
-        return { userName, dateTime, roleName };
+        return { userName, dateTime, roleName, userPhoto, handleLogout };
     }
 }
 </script>

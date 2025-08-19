@@ -88,6 +88,19 @@ export default {
             errors: {},
         };
     },
+    mounted() {
+        if ($(".toggle-password").length > 0) {
+            $(document).on("click", ".toggle-password", function () {
+                $(this).toggleClass("fa-eye fa-eye-slash");
+                const input = $(".pass-input");
+                if (input.attr("type") === "password") {
+                    input.attr("type", "text");
+                } else {
+                    input.attr("type", "password");
+                }
+            });
+        }
+    },
     methods: {
         clearError(field) {
             if (this.errors[field]) {

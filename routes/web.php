@@ -63,8 +63,5 @@ Route::middleware(['auth'])->group(function () {
     })->name('users');
     Route::get('users/getUsers', [UserController::class, 'getUsers']);
 
-    Route::get('/test', function () {
-        return auth()->user();
-    });
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
