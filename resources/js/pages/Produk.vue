@@ -146,7 +146,7 @@
                                                     class="text-danger ms-1">*</span></label>
                                             <input type="text" v-model="form.hargajual" class="form-control" />
                                             <div v-if="errors.hargajual" class="text-danger small">{{ errors.hargajual
-                                            }}
+                                                }}
                                             </div>
                                         </div>
                                         <div class="mb-3 col-md-6">
@@ -154,7 +154,7 @@
                                                     class="text-danger ms-1">*</span></label>
                                             <input type="text" v-model="form.hargabeli" class="form-control" />
                                             <div v-if="errors.hargabeli" class="text-danger small">{{ errors.hargabeli
-                                            }}
+                                                }}
                                             </div>
                                         </div>
                                     </div>
@@ -258,7 +258,7 @@
                                                     class="text-danger ms-1">*</span></label>
                                             <input type="text" v-model="form.editBerat" class="form-control" />
                                             <div v-if="errors.editBerat" class="text-danger small">{{ errors.editBerat
-                                            }}
+                                                }}
                                             </div>
                                         </div>
                                         <div class="mb-3 col-md-6">
@@ -266,7 +266,7 @@
                                                     class="text-danger ms-1">*</span></label>
                                             <input type="text" v-model="form.editKarat" class="form-control" />
                                             <div v-if="errors.editKarat" class="text-danger small">{{ errors.editKarat
-                                            }}
+                                                }}
                                             </div>
                                         </div>
                                     </div>
@@ -295,7 +295,7 @@
                                             <input type="text" v-model="form.editHargaJual" class="form-control" />
                                             <div v-if="errors.editHargaJual" class="text-danger small">{{
                                                 errors.editHargaJual
-                                            }}
+                                                }}
                                             </div>
                                         </div>
                                         <div class="mb-3 col-md-6">
@@ -304,7 +304,7 @@
                                             <input type="text" v-model="form.editHargaBeli" class="form-control" />
                                             <div v-if="errors.editHargaBeli" class="text-danger small">{{
                                                 errors.editHargaBeli
-                                            }}
+                                                }}
                                             </div>
                                         </div>
                                     </div>
@@ -352,6 +352,103 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" ref="viewModal">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable custom-modal-two">
+                <div class="modal-content">
+                    <div class="page-wrapper-new p-0">
+                        <div class="content">
+                            <div class="modal-header border-0 custom-modal-header bg-secondary">
+                                <div class="page-title">
+                                    <h4 class="text-white">
+                                        <b>VIEW PRODUK</b>
+                                    </h4>
+                                </div>
+                                <button type="button" class="close text-white" @click="closeViewProduk">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body custom-modal-body">
+                                <div class="row">
+                                    <div class="col-lg-8 col-sm-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="bar-code-view">
+                                                    <img v-if="selectedProduk"
+                                                        :src="`/storage/barcode/${selectedProduk.image_produk}`"
+                                                        alt="barcode">
+                                                </div>
+                                                <div class="productdetails" v-if="selectedProduk">
+                                                    <ul class="product-bar">
+                                                        <li>
+                                                            <h4>KODE PRODUK</h4>
+                                                            <h6>{{ selectedProduk.kodeproduk }}</h6>
+                                                        </li>
+                                                        <li>
+                                                            <h4>JENIS PRODUK</h4>
+                                                            <h6>{{ selectedProduk.jenisproduk.jenis_produk }}</h6>
+                                                        </li>
+                                                        <li>
+                                                            <h4>BERAT</h4>
+                                                            <h6>{{ selectedProduk.berat }} Gram</h6>
+                                                        </li>
+                                                        <li>
+                                                            <h4>KARAT</h4>
+                                                            <h6>{{ selectedProduk.karat }} K</h6>
+                                                        </li>
+                                                        <li>
+                                                            <h4>LINGKAR</h4>
+                                                            <h6>{{ selectedProduk.lingkar }} cm</h6>
+                                                        </li>
+                                                        <li>
+                                                            <h4>PANJANG</h4>
+                                                            <h6>{{ selectedProduk.panjang }} cm</h6>
+                                                        </li>
+                                                        <li>
+                                                            <h4>HARGA / GRAM</h4>
+                                                            <h6>{{ formatRupiah(selectedProduk.harga_jual) }}</h6>
+                                                        </li>
+                                                        <li>
+                                                            <h4>STATUS</h4>
+                                                            <h6>
+                                                                <span
+                                                                    :class="selectedProduk.status == 1 ? 'badge bg-success' : 'badge bg-danger'">
+                                                                    {{ selectedProduk.status == 1 ? 'In Stock' : 'Out Stock' }}
+                                                                </span>
+                                                            </h6>
+                                                        </li>
+                                                        <li>
+                                                            <h4>KETERANGAN</h4>
+                                                            <h6>{{ selectedProduk.keterangan }}</h6>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-sm-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="slider-product-details">
+                                                    <div class="owl-carousel owl-theme product-slide">
+                                                        <div class="slider-product" v-if="selectedProduk">
+                                                            <img :src="`/storage/produk/${selectedProduk.image_produk}`"
+                                                                alt="img">
+                                                            <h4>{{ selectedProduk.nama }}</h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </template>
 <script>
@@ -359,6 +456,7 @@ import { getCurrentInstance, ref, reactive, onMounted, onBeforeUnmount, nextTick
 import { initTooltips } from "../utilities/tooltip";
 import { initSelect2 } from "../utilities/select.js";
 import { uploadImage } from "../utilities/uploadImage.js";
+import { initializeOwlCarousel } from "../utilities/owlcarousel.js";
 import axios from "../utilities/axios.js";
 export default {
     name: 'Produk',
@@ -369,10 +467,13 @@ export default {
         const tableSelector = "#ProdukTable";
         const tambahModal = ref(null);
         const editModal = ref(null);
+        const viewModal = ref(null);
 
         const produkState = ref([]);
         const jenisList = ref([]);
         const kondisiList = ref([]);
+
+        const selectedProduk = ref(null);
 
         const form = reactive({
             nama: "",
@@ -399,6 +500,15 @@ export default {
             editKeterangan: "",
             editImageProduk: null,
         });
+
+        const formatRupiah = (value) => {
+            if (!value) return 0;
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(value);
+        };
 
         const errors = reactive({
             nama: "",
@@ -521,7 +631,7 @@ export default {
                         className: "action-table-data",
                         render: (data, type, row) => `
                             <div class="edit-delete-action">
-                                <a class="me-2 edit-icon p-2 btn-detail" data-id="${row.id}" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="View">
+                                <a class="me-2 edit-icon p-2 btn-view" data-id="${row.id}" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="View">
                                     <i data-feather="eye" class="action-eye"></i>
                                 </a>
                                 <a class="me-2 p-2 btn-edit" data-id="${row.id}" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="Edit">
@@ -982,6 +1092,42 @@ export default {
         }
         // FUNCTION DELETE //
 
+        const openModalView = (produk) => {
+            selectedProduk.value = produk;
+            const modalEl = viewModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                modal.show();
+            }
+        };
+
+        function handleViewClick(e) {
+            const btn = e.target.closest(".btn-view");
+            if (!btn) return;
+            const id = btn.dataset.id;
+            const produk = produkState.value.find(p => p.id == id);
+            if (!produk) return;
+            openModalView(produk);
+        }
+
+        function bindViewClick() {
+            const tableEl = document.querySelector(tableSelector);
+            if (tableEl) {
+                tableEl.addEventListener("click", handleViewClick);
+            }
+        }
+
+        const closeViewProduk = () => {
+            const modalEl = viewModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+            }
+        };
+
         onMounted(async () => {
             // 1. fetch produk dulu
             await fetchProduk();
@@ -995,9 +1141,13 @@ export default {
             // 4. bind event delete
             bindDeleteClick();
 
-            // 4. sisanya
+            // 5. bind event view
+            bindViewClick();
+
+            // 6. sisanya
             feather.replace();
             initTooltips();
+            initializeOwlCarousel();
             imageUploader = uploadImage("imageProduk", "imageProdukPreview");
         });
 
@@ -1020,8 +1170,30 @@ export default {
             closeEditProduk,
             handleEditImageProdukChange,
             submitEditProduk,
+
+            viewModal,
+            openModalView,
+            closeViewProduk,
+            handleViewClick,
+            selectedProduk,
+            formatRupiah,
         };
     },
 
 }
 </script>
+
+<style>
+.product-slide .slider-product {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.product-slide .slider-product img {
+    max-width: 100%;
+    height: auto;
+}
+</style>

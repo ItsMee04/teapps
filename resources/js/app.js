@@ -8,6 +8,8 @@ import "../assets/css/animate.css";
 import "../assets/plugins/select2/css/select2.min.css";
 import "../assets/plugins/fontawesome/css/fontawesome.min.css";
 import "../assets/plugins/fontawesome/css/all.min.css";
+import "../assets/plugins/owlcarousel/owl.carousel.min.css";
+import "../assets/plugins/owlcarousel/owl.theme.default.min.css";
 import "../assets/css/style.css";
 
 // =========================
@@ -20,7 +22,7 @@ await import("../assets/js/jquery.dataTables.min.js");
 await import("../assets/js/dataTables.bootstrap5.min.js");
 import "../assets/js/feather.min.js";
 await import("../assets/plugins/select2/js/select2.min.js");
-// await import("../assets/plugins/sweetalert/sweetalert2.all.min.js");
+await import("../assets/plugins/owlcarousel/owl.carousel.min.js");
 // await import("../assets/plugins/sweetalert/sweetalerts.min.js");
 await import("../assets/js/script.js");
 

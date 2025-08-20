@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Produk;
 
 use App\Models\Produk;
+use Milon\Barcode\DNS1D;
 use App\Models\JenisProduk;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -61,13 +62,23 @@ class ProdukController extends Controller
 
         $kodeproduk = $this->generateKodeProduk();
 
-        $content = QrCode::format('png')->size(300)->margin(5)->generate($kodeproduk); // Ini menghasilkan data PNG sebagai string
+        /**
+         * Generate BARCODE (Code128) pakai milon/barcode
+         */
+        $barcodeGenerator = new DNS1D();
+        $barcodeGenerator->setStorPath(storage_path('app/public/barcode/'));
 
-        // Tentukan nama file
-        $fileName = 'barcode/' . $kodeproduk . '.png';
+        // hasil barcode berupa base64 string
+        $barcodeBase64 = $barcodeGenerator->getBarcodePNG($kodeproduk, 'C128');
 
-        // Simpan file ke dalam storage/public/barcode/
-        Storage::put($fileName, $content);
+        // ubah base64 ke binary PNG
+        $barcodeImage = base64_decode($barcodeBase64);
+
+        // nama file barcode
+        $barcodeFileName = 'barcode/' . $kodeproduk . '.png';
+
+        // simpan ke storage/app/public/barcode/
+        Storage::disk('public')->put($barcodeFileName, $barcodeImage);
 
         if ($request->file('imageProduk')) {
             $extension = $request->file('imageProduk')->getClientOriginalExtension();
