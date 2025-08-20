@@ -4,6 +4,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Produk\DiskonController;
+use App\Http\Controllers\Produk\ProdukController;
 use App\Http\Controllers\Produk\KondisiController;
 use App\Http\Controllers\Produk\JenisProdukController;
 use App\Http\Controllers\UserManagement\RoleController;
@@ -98,6 +99,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('jenisproduk/getJenisProdukByID/{id}', [JenisProdukController::class, 'getJenisProdukByID']);
     Route::post('jenisproduk/updateJenisProduk/{id}', [JenisProdukController::class, 'updateJenisProduk']);
     Route::delete('jenisproduk/deleteJenisProduk/{id}', [JenisProdukController::class, 'deleteJenisProduk']);
+
+    Route::get('/produk', function () {
+        return Inertia::render('Produk');
+    })->name('produk');
+    Route::get('produk/getProduk', [ProdukController::class, 'getProduk']);
+    Route::post('produk/storeProduk', [ProdukController::class, 'storeProduk']);
+    Route::get('produk/getProdukByID/{id}', [ProdukController::class, 'getProdukByID']);
+    Route::post('produk/updateProduk/{id}', [ProdukController::class, 'updateProduk']);
+    Route::delete('produk/deleteProduk/{id}', [ProdukController::class, 'deleteProduk']);
 
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
