@@ -4,6 +4,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Produk\DiskonController;
+use App\Http\Controllers\Produk\NampanController;
 use App\Http\Controllers\Produk\ProdukController;
 use App\Http\Controllers\Produk\KondisiController;
 use App\Http\Controllers\Produk\JenisProdukController;
@@ -108,6 +109,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('produk/getProdukByID/{id}', [ProdukController::class, 'getProdukByID']);
     Route::post('produk/updateProduk/{id}', [ProdukController::class, 'updateProduk']);
     Route::delete('produk/deleteProduk/{id}', [ProdukController::class, 'deleteProduk']);
+
+    Route::get('/nampan', function () {
+        return Inertia::render('Nampan');
+    })->name('nampan');
+    Route::get('nampan/getNampan', [NampanController::class, 'getNampan']);
+    Route::post('nampan/storeNampan', [NampanController::class, 'storeNampan']);
+    Route::get('nampan/getNampanByID/{id}', [NampanController::class, 'getNampanByID']);
+    Route::post('nampan/updateNampan/{id}', [NampanController::class, 'updateNampan']);
+    Route::get('nampan/finalNampan/{id}', [NampanController::class, 'finalNampan']);
+    Route::get('nampan/tutupNampan/{id}', [NampanController::class, 'tutupNampan']);
 
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

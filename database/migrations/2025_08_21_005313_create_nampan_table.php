@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('nampan', function (Blueprint $table) {
             $table->id();
-            $table->string('nampan', 100);
+            $table->string('kodenampan', 100)->unique();
             $table->unsignedBigInteger('jenisproduk_id');
-            $table->date('tanggal');
-            $table->integer('status_final')->default(1);
+            $table->integer('final_nampan')->default(1);
             $table->integer('status');
             $table->timestamps();
 

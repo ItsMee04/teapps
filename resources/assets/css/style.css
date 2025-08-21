@@ -24241,6 +24241,11 @@ table tbody td.action-table-data a .feather-trash-2 {
   width: 14px;
   height: 14px;
 }
+table tbody td.action-table-data a .feather-print {
+    color: #4c018a;
+    width: 14px;
+    height: 14px;
+}
 table tbody td.action-table-data a .feather-eye {
   width: 14px;
   height: 14px;
@@ -24984,6 +24989,10 @@ table tbody td.action-table-data a.cancel-circle:hover svg {
 .edit-delete-action a.confirm-text:hover {
   background-color: #FF0000;
   border-color: #FF0000;
+}
+.edit-delete-action a.btn-delete:hover {
+  background-color: #4c018a;
+  border-color: #4c018a;
 }
 .edit-delete-action a.edit-icon:hover {
   background-color: #092C4C;
@@ -28738,7 +28747,9 @@ textarea {
 .bank-action-btn a svg.feather-trash-2 {
   color: #FF0000;
 }
-
+.bank-action-btn a svg.feather-print {
+    color: #4c018a;
+}
 .storage-icon h6 {
   font-weight: 600;
   font-size: 16px;
