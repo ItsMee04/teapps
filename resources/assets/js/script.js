@@ -529,23 +529,6 @@ $(document).ready(function () {
 		$(this).find('i.fa').toggleClass('fa-star').toggleClass('fa-star-o');
 	});
 
-
-	var selectAllItems = "#select-all";
-	var checkboxItem = ":checkbox";
-	$(selectAllItems).click(function () {
-
-		if (this.checked) {
-			$(checkboxItem).each(function () {
-				this.checked = true;
-			});
-		} else {
-			$(checkboxItem).each(function () {
-				this.checked = false;
-			});
-		}
-
-	});
-
 	var selectAllItems = "#select-all2";
 	var checkboxItem = ":checkbox";
 	$(selectAllItems).click(function () {

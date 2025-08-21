@@ -66,7 +66,7 @@
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link href="/nampan" :class="{ 'active': currentPath === '/nampan' }"> Nampan
+                                        <Link href="/nampan" :class="{ 'active': currentPath === '/nampan' || currentPath.startsWith('/nampanproduk') }" > Nampan
                                         </Link>
                                     </li>
                                     <li>

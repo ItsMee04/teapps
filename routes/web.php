@@ -1,6 +1,7 @@
 <?php
 
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Produk\DiskonController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Produk\NampanController;
 use App\Http\Controllers\Produk\ProdukController;
 use App\Http\Controllers\Produk\KondisiController;
 use App\Http\Controllers\Produk\JenisProdukController;
+use App\Http\Controllers\Produk\NampanProdukController;
 use App\Http\Controllers\UserManagement\RoleController;
 use App\Http\Controllers\UserManagement\UserController;
 use App\Http\Controllers\UserManagement\JabatanController;
@@ -119,6 +121,22 @@ Route::middleware(['auth'])->group(function () {
     Route::post('nampan/updateNampan/{id}', [NampanController::class, 'updateNampan']);
     Route::get('nampan/finalNampan/{id}', [NampanController::class, 'finalNampan']);
     Route::get('nampan/tutupNampan/{id}', [NampanController::class, 'tutupNampan']);
+
+    Route::match(['get', 'post'], '/nampanproduk', function (Request $request) {
+        // Kalau ada data dari POST, simpan ke session
+        if ($request->isMethod('post')) {
+            session(['selected_nampan_id' => $request->id]);
+        }
+
+        // Ambil dari session untuk dikirim ke Inertia
+        return Inertia::render('NampanProduk', [
+            'id' => session('selected_nampan_id'),
+        ]);
+    })->name('nampanproduk');
+    Route::get('/nampanproduk/getNampanProduk/{id}', [NampanProdukController::class, 'getNampanProduk']);
+    Route::get('/nampanroduk/getProdukNampan/{id}', [NampanProdukController::class, 'getProdukNampan']);
+    Route::post('nampan/nampanproduk/storeProdukNampan/{id}', [NampanProdukController::class, 'storeProdukNampan']);
+    Route::delete('nampan/nampanproduk/deleteNampanProduk/{id}', [NampanProdukController::class, 'deleteNampanProduk']);
 
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

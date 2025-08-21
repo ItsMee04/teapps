@@ -80,7 +80,7 @@ class NampanController extends Controller
 
         // Update data nampan
         $nampan->update([
-            'nampan'            =>  $request->nampan,
+            'kodenampan'        =>  $request->nampan,
             'jenisproduk_id'    =>  $request->jenis
         ]);
 

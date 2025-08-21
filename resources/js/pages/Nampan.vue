@@ -106,12 +106,65 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" ref="editModal">
+            <div class="modal-dialog modal-dialog-centered custom-modal-two">
+                <div class="modal-content">
+                    <div class="page-wrapper-new p-0">
+                        <div class="content">
+                            <div class="modal-header border-0 custom-modal-header bg-secondary">
+                                <div class="page-title">
+                                    <h4 class="text-white">
+                                        <b>EDIT BAKI</b>
+                                    </h4>
+                                </div>
+                                <button type="button" class="close text-white" @click="closeEditBaki">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body custom-modal-body">
+                                <form @submit.prevent="submitEditBaki">
+                                    <div class="mb-3">
+                                        <label class="form-label">BAKI</label>
+                                        <input type="text" v-model="form.editBaki" class="form-control" />
+                                        <div v-if="errors.editBaki" class="text-danger small">{{
+                                            errors.baki }}</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">JENIS<span class="text-danger ms-1">*</span></label>
+                                        <select class="select" id="editJenis" v-model="form.editJenisSelect">
+                                            <option value="">Pilih Jenis Produk</option>
+                                            <option v-for="jenis in jenisList" :key="jenis.id" :value="jenis.id">
+                                                {{ jenis.jenis_produk }}
+                                            </option>
+                                        </select>
+                                        <div v-if="errors.editJenisSelect" class="text-danger small">{{
+                                            errors.editJenisSelect }}</div>
+                                    </div>
+                                    <div class="modal-footer-btn">
+                                        <button type="button" class="btn btn-cancel btn-warning me-2"
+                                            @click="closeEditBaki">
+                                            CANCEL
+                                        </button>
+                                        <button type="submit" class="btn btn-submit btn-secondary">
+                                            SIMPAN BAKI
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </template>
 <script>
 import { getCurrentInstance, ref, reactive, onMounted, onBeforeUnmount, nextTick } from "vue";
-import { initTooltips } from "../utilities/tooltip";
+import { initTooltips, disposeAllTooltips  } from "../utilities/tooltip";
 import { initSelect2 } from "../utilities/select.js";
+import { router } from '@inertiajs/vue3'
 import axios from "../utilities/axios.js";
 export default {
     name: "Nampan",
@@ -121,13 +174,13 @@ export default {
 
         const tableSelector = "#BakiTable";
         const tambahModal = ref(null);
-        // const editModal = ref(null);
+        const editModal = ref(null);
 
         const nampanState = ref([]);
         const jenisList = ref([]);
-        const form = reactive({ baki: "", JenisSelect: "" });
+        const form = reactive({ baki: "", JenisSelect: "", editBaki: "", editJenisSelect: "" });
 
-        const errors = reactive({ baki: "", JenisSelect: "" });
+        const errors = reactive({ baki: "", JenisSelect: "", editBaki: "", editJenisSelect: "" });
 
         let dataTableInstance = null;
 
@@ -322,9 +375,134 @@ export default {
             }
         };
 
+        const openModalEdit = (nampan) => {
+            form.id = nampan.id;
+            form.editBaki = nampan.kodenampan;
+            form.editJenisSelect = nampan.jenis_produk.id;
+            fetchJenis(); // pastikan jenis produk sudah terisi sebelum modal dibuka    
+
+            const modalEl = editModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                modal.show();
+            }
+
+            // Sinkronkan select2 dengan v-model
+            nextTick(() => {
+                initSelect2("#editJenis", { placeholder: "Pilih Jenis", allowClear: true });
+                $('#editJenis').val(form.editJenisSelect).trigger('change');
+                $('#editJenis').on('change', function () {
+                    form.editJenisSelect = $(this).val();
+                });
+
+            });
+        };
+
+        function handleEditClick(e) {
+            const btn = e.target.closest(".btn-edit");
+            if (!btn) return;
+            const id = btn.dataset.id;
+            const nampan = nampanState.value.find(p => p.id == id);
+            if (!nampan) return;
+            openModalEdit(nampan);
+        }
+
+        function bindEditClick() {
+            const tableEl = document.querySelector(tableSelector);
+            if (tableEl) {
+                tableEl.addEventListener("click", handleEditClick);
+            }
+        }
+
+        const closeEditBaki = () => {
+            const modalEl = editModal.value;
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+            }
+            form.id = null;
+            form.editBaki = "";
+            form.editJenisSelect = "";
+
+            // Reset error edit (langsung reassign biar reactive jalan)
+            Object.assign(errors, {
+                editBaki: "",
+                editJenisSelect: "",
+            });
+        };
+
+        const validateEditForm = () => {
+            errors.editBaki = form.editBaki.trim() ? "" : "Baki wajib diisi!";
+            errors.editJenisSelect = form.editJenisSelect ? "" : "Jenis Produk wajib dipilih!";
+
+            return !errors.editBaki && !errors.editJenisSelect;
+        };
+
+        // SUBMIT DATA BAKI
+        const submitEditBaki = async () => {
+            if (!validateEditForm()) {
+                toast("Mohon lengkapi data!", "error");
+                return;
+            }
+            try {
+                const fd = new FormData();
+                fd.append('id', form.id);
+                fd.append('nampan', form.editBaki);
+                fd.append('jenis', parseInt(form.editJenisSelect));
+
+                const response = await axios.post(`/nampan/updateNampan/${form.id}`, fd);
+
+                toast(response.data.message || "Nampan berhasil diupdate!", "success");
+                closeEditBaki();
+                await refreshTableInternal();
+
+            } catch (error) {
+                const serverErrors = error.response?.data?.errors;
+                if (serverErrors) {
+                    Object.keys(errors).forEach(key => {
+                        errors[key] = serverErrors[key]?.[0] || "";
+                    });
+                    let errorList = "<ul style='text-align:left;'>";
+                    for (let key in serverErrors) {
+                        errorList += `<li>${serverErrors[key][0]}</li>`;
+                    }
+                    errorList += "</ul>";
+                    toast(errorList, "error");
+                } else {
+                    toast(error.response?.data?.message || "Gagal mengupdate nampan", "error");
+                }
+            }
+        };
+
+        function handleViewClick(e) {
+            const btn = e.target.closest(".btn-view");
+            if (!btn) return;
+            const id = btn.dataset.id;
+            disposeAllTooltips(); // Hapus semua tooltip sebelum navigasi
+            router.visit('/nampanproduk', {
+                method: 'post',
+                data: { id },
+                preserveState: true,
+            });
+        }
+
+        function bindViewClick() {
+            const tableEl = document.querySelector(tableSelector);
+            if (tableEl) {
+                tableEl.addEventListener("click", handleViewClick);
+            }
+        }
+
         onMounted(async () => {
             await fetchNampan();
             initTable();
+
+            bindEditClick();
+            bindViewClick();
+
             initTooltips();
             feather.replace();
         });
@@ -340,6 +518,11 @@ export default {
             openModalAdd,
             closeBaki,
             submitBaki,
+
+            editModal,
+            openModalEdit,
+            closeEditBaki,
+            submitEditBaki,
         };
     }
 }
