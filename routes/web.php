@@ -135,7 +135,7 @@ Route::middleware(['auth'])->group(function () {
     })->name('nampanproduk');
     Route::get('/nampanproduk/getNampanProduk/{id}', [NampanProdukController::class, 'getNampanProduk']);
     Route::get('/nampanroduk/getProdukNampan/{id}', [NampanProdukController::class, 'getProdukNampan']);
-    Route::post('nampan/nampanproduk/storeProdukNampan/{id}', [NampanProdukController::class, 'storeProdukNampan']);
+    Route::post('/nampanproduk/storeProdukNampan/{id}', [NampanProdukController::class, 'storeProdukNampan']);
     Route::delete('nampan/nampanproduk/deleteNampanProduk/{id}', [NampanProdukController::class, 'deleteNampanProduk']);
 
 

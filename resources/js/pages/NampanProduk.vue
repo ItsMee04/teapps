@@ -118,6 +118,7 @@ import { getCurrentInstance, ref, reactive, onMounted, onBeforeUnmount, nextTick
 import { initTooltips } from "../utilities/tooltip";
 import { usePage } from '@inertiajs/vue3'
 import { initSelectAllDataTable } from "../utilities/selectall.js";
+import { initSelect2 } from "../utilities/select.js";
 import axios from "../utilities/axios.js";
 export default {
     name: "NampanProduk",
@@ -330,6 +331,74 @@ export default {
             }
         };
 
+        const validateForm = () => {
+            const checkboxes = $(tableSelectorProduk + ' input[type="checkbox"]:checked');
+
+            if (checkboxes.length === 0) {
+                // Tidak ada checkbox yang dicentang
+                toast("Harap pilih minimal 1 produk!", "error");
+                return false; // mencegah form submit
+            }
+
+            // Jika ada yang dicentang
+            return true;
+        };
+
+        // SUBMIT DATA PRODUK
+        const submitProduk = async () => {
+            if (!validateForm()) return;
+
+            // Ambil semua checkbox yang dicentang
+            const selectedProduk = [];
+            $(tableSelectorProduk + ' input[type="checkbox"]:checked').each(function () {
+                selectedProduk.push($(this).val());
+            });
+
+            // SweetAlert konfirmasi tipe stok
+            const { value: tipeStok } = await Swal.fire({
+                title: "PILIH JENIS BARANG",
+                input: "select",
+                inputOptions: {
+                    awal: "STOK AWAL",
+                    masuk: "BARANG MASUK"
+                },
+                inputPlaceholder: "PILIH JENIS ..",
+                showCancelButton: true,
+                confirmButtonText: "LANJUTAKAN",
+                cancelButtonText: "BATAL",
+                customClass: {
+                    input: 'selectSwall' // Tambahkan class CSS-mu
+                },
+                didOpen: () => {
+                    // Init Select2 di SweetAlert
+                    initSelectSwall('.selectSwall'); // inisialisasi Select2
+                },
+            });
+
+            if (!tipeStok) {
+                toast("Anda harus memilih tipe stok!", "error");
+                return;
+            }
+
+            try {
+                const response = await axios.post(`/nampanproduk/storeProdukNampan/${idParam}`, {
+                    items: selectedProduk,
+                    jenis: tipeStok
+                });
+
+                if (response.data.status === "success") {
+                    toast("Produk berhasil ditambahkan!", "success");
+                    closeProduk();
+                    await refreshTableInternal();
+                } else {
+                    toast("Gagal menambahkan produk!", "error");
+                }
+            } catch (error) {
+                console.error(error);
+                toast("Terjadi kesalahan saat menambahkan produk!", "error");
+            }
+        };
+
         onMounted(async () => {
             await fetchNampanProduk();
             initTable();
@@ -344,6 +413,7 @@ export default {
             tambahModal,
             openModalAdd,
             closeProduk,
+            submitProduk,
         };
     }
 }

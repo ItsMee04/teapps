@@ -70,14 +70,14 @@ class NampanProdukController extends Controller
         $nampan = Nampan::findOrFail($id);
 
         // Validasi jenis input berdasarkan status final nampan
-        if ($nampan->status_final == 1 && $jenis != 'awal') {
+        if ($nampan->final_nampan == 1 && $jenis != 'awal') {
             return response()->json([
                 'success' => false,
                 'message' => 'Nampan belum difinal, hanya boleh input produk dengan jenis "awal".'
             ]);
         }
 
-        if ($nampan->status_final == 2 && $jenis != 'masuk') {
+        if ($nampan->final_nampan == 2 && $jenis != 'masuk') {
             return response()->json([
                 'success' => false,
                 'message' => 'Nampan sudah difinal, hanya boleh input produk dengan jenis "masuk".'
